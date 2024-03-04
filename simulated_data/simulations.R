@@ -1,83 +1,41 @@
 
-# ----------------------------------------------
-# Simulate URW data sets and test fit to URW 
-# ----------------------------------------------
+# ----------------- #
+#  SIMULATED DATA   #
+# ----------------- #
 
-library(iterators)
-library(parallel)
-library(foreach)
-library(doParallel)
+# packages needed
+#install.packages(evoTS)        # version 1.0.2
+#install.packages(paleoTS)      # version 0.5.3
+#install.packages(wesanderson)  # colors for figures
+#install.packages(tidyverse)
+#install.packages(ggpmisc)
+
 library(evoTS)
 library(paleoTS)
 library(wesanderson)
 library(tidyverse)
 library(ggpmisc)
 
-rm(list = ls())
 
-setwd("/Users/vildeki/Dropbox (UiO)/PhD/Evo. rates and time scaling/")
-source(file = "/Users/vildeki/Dropbox (UiO)/PhD/Evo. rates and time scaling/URW_simulations_functions.R")
-source(file = "/Users/vildeki/Dropbox (UiO)/PhD/Evo. rates and time scaling/rates_time_functions.R")
+# set working directory and import function script
+setwd("[working directory]")
+source(file = "[working directory]/simulations_functions.R")
 
-# ----------------------
-# Set up parallel run
-# ----------------------
-
-n_cores <- (parallel::detectCores()-1)
-
-# create the cluster
-my_cluster <- parallel::makeCluster(
-  n_cores, 
-  type = "FORK"
-)
+#*source(file = "/Users/vildeki/Dropbox (UiO)/PhD/Evo. rates and time scaling/rates_time_functions.R")
 
 
-# ----------------------
-# Simulate data
-# ----------------------
+#### SIMULATE DATA ###
 
-#data <- sim(i = 1:100, ns = 100, nn = rep(50,100), vs = 1, vp = 0.1)
-  # run twice as much if you want to remove those with too large vstep discrepancies later
+# example of how to simulate data (sim function from simulations_functions.R)
+data <- sim(i = 1:100, ns = 100, nn = rep(50,100), vs = 1, vp = 0.1)
 
-# load simulations created on HPC
-load("/Users/vildeki/Dropbox (UiO)/PhD/Evo. rates and time scaling/data_temp/URW_sim_1000.Rdata")
+## load simulated data used in the article
+load("[working directory]/simulations.Rdata")
 
-# -------------------------------------
-# Check if the timeseries fit URW best !SKIPPED!
-# -------------------------------------
 
-# register parallel to be used 
-#doParallel::registerDoParallel(cl = my_cluster)
+### CUT SIMULATIONS RANDOMLY IN TWO ###
 
-#model <- mclapply(data, fit3models) # best to do on HPC with high number of simulations
-#check_GRW_URW(model, 5)
-
-# -------------------------------------------------
-# Run URW on data and check the variance parameter
-# -------------------------------------------------
-
-# register parallel to be used 
-#doParallel::registerDoParallel(cl = my_cluster)
-
-# run URW on data
-#URW_joint <- mclapply(data, opt.joint.URW) # best to do on HPC with high number of simulations
-
-# URW on simulations from HPC
-#load("/Users/vildeki/Dropbox (UiO)/PhD/Evo. rates and time scaling/data_temp/URW_joint_1000.Rdata")
-
-#check_var <- var_ok(URW_joint, vs = 1, rng = 0.1) 
-#check_var
-# length(check_var)
-
-# ------------------------------------
-# Remove timeseries without vs range !SKIPPED!
-# ------------------------------------
-
-#new_data <- var_remove(URW_joint, data, vs = 1, rng = 0.1)
-
-# ----------------------
-# Cut new data randomly
-# ---------------------- 
+## example of how to cut data (load article data below)
 
 # duplicate data list
 new_data <- c(data, data)
@@ -95,55 +53,53 @@ for (i in 1:len_data){
   stop[i+len_data] <- range_ts
 }
 
-
 # cut data
-sub_data <- list()
+cut_data <- list()
 for (i in 1:length(new_data)){
-  sub_data[[i]] <- sub.paleoTS(new_data[[i]], ok = start[i]:stop[i], reset.time = FALSE)
+  cut_data[[i]] <- sub.paleoTS(new_data[[i]], ok = start[i]:stop[i], reset.time = FALSE)
 }
 
-# generate random k between 0.1-1
-k <- runif(length(sub_data), min=0.1, max=1)
+## load cut data used in the article
+load("[working directory]/cut_data.Rdata")
 
-# cut and missing data
-sub_data2 <- list()
-for (i in 1:length(sub_data)){
-  sub_data2[[i]] <- sub.paleoTS(sub_data[[i]], k = k[i], reset.time = FALSE)
+
+### MAKE INCOMPLETE DATA BY REMOVING POPULATIONS RANDOMLY ###
+
+
+# generate random k for sub.paleoTS() between 0.1-1
+k <- runif(length(cut_data), min=0.1, max=1)
+
+# make empty list
+incompl_data <- list()
+
+# remove populations
+for (i in 1:length(cut_data)){
+  incompl_data[[i]] <- sub.paleoTS(cut_data[[i]], k = k[i], reset.time = FALSE)
 }
 
+## load cut and incomplete data used in the article
+load("[working directory]/incompl_data.Rdata")
 
-#for (i in 1:length(sub_data2)){
-#  if (length(sub_data2[[2]]$mm) < 5){
-#    print("yes")
-#  }
-#}
 
-# remove time series with less than 5 data points ***the error is ok***
-#for (i in 1:length(sub_data3)){
-#  if (length(sub_data3[[i]]$mm) < 5){
-#    sub_data3[[i]] <- NULL
-#  }
-#}
+### MAKE BIASED DATA BY REMOVING TIME CHUNKS OF POPULATIONS RANDOMLY ###
 
-#save(sub_data, file = "./data_temp/sub_data.Rdata")
-#save(sub_data2, file = "./data_temp/sub_data2.Rdata")
-
-# biased subsambling of cut data
-sub_data3 <- vector(mode = "list", length = length(sub_data2))
-for (i in 1:length(sub_data2)){
+# biased sub sampling
+biased_data <- vector(mode = "list", length = length(incompl_data))
+for (i in 1:length(incompl_data)){
   
-  if (length(sub_data2[[i]]$tt) < 10){
+  if (length(incompl_data[[i]]$tt) < 10){
+    # < 10 to assure enough populations to estimate vstep
     # keep time series with little data as is
-    sub_data3[[i]]$tt <- sub_data2[[i]]$tt
-    sub_data3[[i]]$mm <- sub_data2[[i]]$mm
-    sub_data3[[i]]$nn <- sub_data2[[i]]$nn
-    sub_data3[[i]]$vv <- sub_data2[[i]]$vv
+    biased_data[[i]]$tt <- incompl_data[[i]]$tt
+    biased_data[[i]]$mm <- incompl_data[[i]]$mm
+    biased_data[[i]]$nn <- incompl_data[[i]]$nn
+    biased_data[[i]]$vv <- incompl_data[[i]]$vv
   } else {
     # generate random start
-    start <- floor(runif(1, 1, length(sub_data2[[i]]$tt)))
-    while(start > (length(sub_data2[[i]]$tt) - 5)){
-      start <- floor(runif(1, 1, length(sub_data2[[i]]$tt)))
-      if (start <= (length(sub_data2[[i]]$tt) - 5)){
+    start <- floor(runif(1, 1, length(incompl_data[[i]]$tt)))
+    while(start > (length(incompl_data[[i]]$tt) - 5)){
+      start <- floor(runif(1, 1, length(incompl_data[[i]]$tt)))
+      if (start <= (length(incompl_data[[i]]$tt) - 5)){
         break
       }
     }
