@@ -63,7 +63,7 @@ for (i in 1:length(new_data)){
 }
 
 ## load cut data used in the article
-load("[working directory]/cut_data.Rdata")
+load("[PATH_TO_DATA]/cut_data.Rdata")
 
 
 ### MAKE INCOMPLETE DATA BY REMOVING POPULATIONS RANDOMLY ###
@@ -82,7 +82,7 @@ for (i in 1:length(cut_data)){
 }
 
 ## load cut and incomplete data used in the article
-load("[working directory]/incompl_data.Rdata")
+load("[PATH_TO_DATA]/incompl_data.Rdata")
 
 
 ### MAKE BIASED DATA BY REMOVING TIME CHUNKS OF POPULATIONS RANDOMLY ###
@@ -139,13 +139,8 @@ darwins_cut <- lapply(darwins_cut, function(x) {
   return(x)
 })
 
-# calculate darwins (measurements are already log transformed)
-for (i in 1:length(darwins_cut)){
-  darwins_cut[[i]]$darwins <- abs((tail(darwins_cut[[i]]$mm, n = 1) - 
-                                     darwins_cut[[i]]$mm[1]) / darwins_cut[[i]]$interval_MY)
-  # log transform darwins
-  darwins_cut[[i]]$darwins <- log(darwins_cut[[i]]$darwins)
-}
+# calculate darwins (function darwins() from simulations_functions.R)
+darwins_cut <- darwins(darwins_cut)
 
 # log transform time
 darwins_cut <- lapply(darwins_cut, function(x) {
@@ -160,20 +155,15 @@ darwins_incompl <- incompl_data
 # calculate time interval
 darwins_incompl <- lapply(darwins_incompl, function(x) {
   if (length(x$tt) == 1){
-      x$interval_MY <- x$tt
-    } else{
-      x$interval_MY <- (tail(x$tt, n = 1)) - x$tt[1]
-    }
+    x$interval_MY <- x$tt
+  } else{
+    x$interval_MY <- (tail(x$tt, n = 1)) - x$tt[1]
+  }
   return(x)
 })
 
-# calculate darwins (measurements are already log transformed)
-for (i in 1:length(darwins_incompl)){
-  darwins_incompl[[i]]$darwins <- abs((tail(darwins_incompl[[i]]$mm, n = 1) - 
-                                         darwins_incompl[[i]]$mm[1]) / darwins_incompl[[i]]$interval_MY)
-  # log transform darwins
-  darwins_incompl[[i]]$darwins <- log(darwins_incompl[[i]]$darwins)
-}
+# calculate darwins
+darwins_incompl <- darwins(darwins_incompl)
 
 # log transform time
 darwins_incompl <- lapply(darwins_incompl, function(x) {
@@ -191,13 +181,8 @@ darwins_biased <- lapply(darwins_biased, function(x) {
   return(x)
 })
 
-# calculate darwins (measurements are already log transformed)
-for (i in 1:length(darwins_biased)){
-  darwins_biased[[i]]$darwins <- abs((tail(darwins_biased[[i]]$mm, n = 1) -
-                                        darwins_biased[[i]]$mm[1]) / darwins_biased[[i]]$interval_MY)
-  # log transform darwins
-  darwins_biased[[i]]$darwins <- log(darwins_biased[[i]]$darwins)
-}
+# calculate darwins
+darwins_biased <- darwins(darwins_biased)
 
 # log transform time
 darwins_biased <- lapply(darwins_biased, function(x) {
@@ -237,7 +222,7 @@ URW_biased <- lapply(biase_data_paleo, opt.joint.URW)
 ## load data used in the article
 load("[PATH_TO_DATA]/URW_cut.Rdata")
 load("[PATH_TO_DATA]/URW_incompl.Rdata")
-load("[PATH_TO_DATA/URW_biased.Rdata")
+load("[PATH_TO_DATA]/URW_biased.Rdata")
 
 
 # ------------------------- #
