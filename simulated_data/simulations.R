@@ -4,43 +4,45 @@
 # ----------------- #
 
 # packages needed
-#install.packages(evoTS)        # version 1.0.2
-#install.packages(paleoTS)      # version 0.5.3
-#install.packages(wesanderson)  # colors for figures
-#install.packages(tidyverse)
-#install.packages(ggpmisc)
+#install.packages("evoTS")        # version 1.0.2
+#install.packages("paleoTS")      # version 0.5.3
+#install.packages("wesanderson")  # colors for figures
+#install.packages("tidyverse")
+#install.packages("ggpmisc")
+#install.packages("foreach")
+#install.packages("gridExtra")
 
 library(evoTS)
 library(paleoTS)
 library(wesanderson)
 library(tidyverse)
 library(ggpmisc)
+library(foreach)
+library(gridExtra)
 
 
-# set working directory and import function script
-setwd("[working directory]")
-source(file = "[working directory]/simulations_functions.R")
-
-#*source(file = "/Users/vildeki/Dropbox (UiO)/PhD/Evo. rates and time scaling/rates_time_functions.R")
+# import function script
+source(file = "[PATH_TO_SCRIPT]/simulations_functions.R")
 
 
 #### SIMULATE DATA ###
 
-# example of how to simulate data (sim function from simulations_functions.R)
-data <- sim(i = 1:100, ns = 100, nn = rep(50,100), vs = 1, vp = 0.1)
+# example of how to simulate unbiased random walk time series 
+# (sim function from simulations_functions.R)
+data_sim <- sim(i = 1:1000, ns = 1000, nn = rep(50,1000), vs = 1, vp = 0.1)
 
 ## load simulated data used in the article
-load("[working directory]/simulations.Rdata")
+load("[PATH_TO_DATA]/data_sim.Rdata")
 
 
 ### CUT SIMULATIONS RANDOMLY IN TWO ###
 
-## example of how to cut data (load article data below)
+## example of how to cut data (load data from article below)
 
 # duplicate data list
-new_data <- c(data, data)
+new_data <- c(data_sim, data_sim)
 
-# generate random sequences
+# generate random time series lengths
 start <- rep(0, length(new_data))
 stop <- rep(0, length(new_data))
 range_ts <- length(new_data[[1]]$tt)
@@ -53,10 +55,11 @@ for (i in 1:len_data){
   stop[i+len_data] <- range_ts
 }
 
-# cut data
+# cut data in two
 cut_data <- list()
 for (i in 1:length(new_data)){
-  cut_data[[i]] <- sub.paleoTS(new_data[[i]], ok = start[i]:stop[i], reset.time = FALSE)
+  cut_data[[i]] <- sub.paleoTS(new_data[[i]], ok = start[i]:stop[i], 
+                               reset.time = FALSE)
 }
 
 ## load cut data used in the article
@@ -65,6 +68,7 @@ load("[working directory]/cut_data.Rdata")
 
 ### MAKE INCOMPLETE DATA BY REMOVING POPULATIONS RANDOMLY ###
 
+## example of how to remove populations (load data from article below)
 
 # generate random k for sub.paleoTS() between 0.1-1
 k <- runif(length(cut_data), min=0.1, max=1)
@@ -83,8 +87,11 @@ load("[working directory]/incompl_data.Rdata")
 
 ### MAKE BIASED DATA BY REMOVING TIME CHUNKS OF POPULATIONS RANDOMLY ###
 
+## example of how bias data (load data from article below)
+
 # biased sub sampling
 biased_data <- vector(mode = "list", length = length(incompl_data))
+
 for (i in 1:length(incompl_data)){
   
   if (length(incompl_data[[i]]$tt) < 10){
@@ -105,47 +112,53 @@ for (i in 1:length(incompl_data)){
     }
   
     # generate random stop
-    stop <- floor(runif(1, (start + 1), length(sub_data2[[i]]$tt)))
+    stop <- floor(runif(1, (start + 1), length(incompl_data[[i]]$tt)))
   
-    # cut out data points
-    sub_data3[[i]]$tt <- sub_data2[[i]]$tt[-(start:stop)]
-    sub_data3[[i]]$mm <- sub_data2[[i]]$mm[-(start:stop)]
-    sub_data3[[i]]$nn <- sub_data2[[i]]$nn[-(start:stop)]
-    sub_data3[[i]]$vv <- sub_data2[[i]]$vv[-(start:stop)]
+    # remove populations within time range
+    biased_data[[i]]$tt <- incompl_data[[i]]$tt[-(start:stop)]
+    biased_data[[i]]$mm <- incompl_data[[i]]$mm[-(start:stop)]
+    biased_data[[i]]$nn <- incompl_data[[i]]$nn[-(start:stop)]
+    biased_data[[i]]$vv <- incompl_data[[i]]$vv[-(start:stop)]
   }
 }
 
-
-#save(sub_data3, file = "./data_temp/sub_data3.Rdata")
-
-# Load subset data 
-load("/Users/vildeki/Dropbox (UiO)/PhD/Evo. rates and time scaling/data_temp/sub_data.Rdata")
-load("/Users/vildeki/Dropbox (UiO)/PhD/Evo. rates and time scaling/data_temp/sub_data2.Rdata")
-load("/Users/vildeki/Dropbox (UiO)/PhD/Evo. rates and time scaling/data_temp/sub_data3.Rdata")
+## load data used in the article
+load("[PATH_TO_DATA]/biased_data.Rdata")
 
 
-# --------------------------
-# Run darwins on subset data
-# --------------------------
-darwins_sub <-sub_data
-darwins_sub <- lapply(darwins_sub, function(x) {
+# ------------------------------------- #
+#  Calculate darwins for simulated data #
+# ------------------------------------- #
+
+# copy cut dataset
+darwins_cut <- cut_data
+
+# calculate length of time interval
+darwins_cut <- lapply(darwins_cut, function(x) {
   x$interval_MY <- (tail(x$tt, n = 1)) - x$tt[1]
   return(x)
 })
-# calculate darwins for all datasets (***measurements are already log transformed)
-for (i in 1:length(darwins_sub)){
-  darwins_sub[[i]]$darwins <- abs((tail(darwins_sub[[i]]$mm, n = 1) - darwins_sub[[i]]$mm[1]) / darwins_sub[[i]]$interval_MY)
-  darwins_sub[[i]]$darwins <- log(darwins_sub[[i]]$darwins)
+
+# calculate darwins (measurements are already log transformed)
+for (i in 1:length(darwins_cut)){
+  darwins_cut[[i]]$darwins <- abs((tail(darwins_cut[[i]]$mm, n = 1) - 
+                                     darwins_cut[[i]]$mm[1]) / darwins_cut[[i]]$interval_MY)
+  # log transform darwins
+  darwins_cut[[i]]$darwins <- log(darwins_cut[[i]]$darwins)
 }
 
-# transform time to log scale
-darwins_sub <- lapply(darwins_sub, function(x) {
+# log transform time
+darwins_cut <- lapply(darwins_cut, function(x) {
   x$interval_MY <- log(x$interval_MY)
   return(x)
 })
 
-darwins_sub2 <-sub_data2
-darwins_sub2 <- lapply(darwins_sub2, function(x) {
+
+# copy cut and incomplete data set
+darwins_incompl <- incompl_data
+
+# calculate time interval
+darwins_incompl <- lapply(darwins_incompl, function(x) {
   if (length(x$tt) == 1){
       x$interval_MY <- x$tt
     } else{
@@ -154,88 +167,95 @@ darwins_sub2 <- lapply(darwins_sub2, function(x) {
   return(x)
 })
 
-# calculate darwins for all datasets (***measurements are already log transformed)
-for (i in 1:length(darwins_sub2)){
-  darwins_sub2[[i]]$darwins <- abs((tail(darwins_sub2[[i]]$mm, n = 1) - darwins_sub2[[i]]$mm[1]) / darwins_sub2[[i]]$interval_MY)
-  darwins_sub2[[i]]$darwins <- log(darwins_sub2[[i]]$darwins)
+# calculate darwins (measurements are already log transformed)
+for (i in 1:length(darwins_incompl)){
+  darwins_incompl[[i]]$darwins <- abs((tail(darwins_incompl[[i]]$mm, n = 1) - 
+                                         darwins_incompl[[i]]$mm[1]) / darwins_incompl[[i]]$interval_MY)
+  # log transform darwins
+  darwins_incompl[[i]]$darwins <- log(darwins_incompl[[i]]$darwins)
 }
-# transform time to log scale
-darwins_sub2 <- lapply(darwins_sub2, function(x) {
+
+# log transform time
+darwins_incompl <- lapply(darwins_incompl, function(x) {
   x$interval_MY <- log(x$interval_MY)
   return(x)
 })
 
-darwins_sub3 <-sub_data3
-darwins_sub3 <- lapply(darwins_sub3, function(x) {
+
+# copy cut, incomplete and biased data set
+darwins_biased <- biased_data
+
+# calculate time interval
+darwins_biased <- lapply(darwins_biased, function(x) {
   x$interval_MY <- (tail(x$tt, n = 1)) - x$tt[1]
   return(x)
 })
-# calculate darwins for all datasets (***measurements are already log transformed)
-for (i in 1:length(darwins_sub3)){
-  darwins_sub3[[i]]$darwins <- abs((tail(darwins_sub3[[i]]$mm, n = 1) - darwins_sub3[[i]]$mm[1]) / darwins_sub3[[i]]$interval_MY)
-  darwins_sub3[[i]]$darwins <- log(darwins_sub3[[i]]$darwins)
+
+# calculate darwins (measurements are already log transformed)
+for (i in 1:length(darwins_biased)){
+  darwins_biased[[i]]$darwins <- abs((tail(darwins_biased[[i]]$mm, n = 1) -
+                                        darwins_biased[[i]]$mm[1]) / darwins_biased[[i]]$interval_MY)
+  # log transform darwins
+  darwins_biased[[i]]$darwins <- log(darwins_biased[[i]]$darwins)
 }
-# transform time to log scale
-darwins_sub3 <- lapply(darwins_sub3, function(x) {
+
+# log transform time
+darwins_biased <- lapply(darwins_biased, function(x) {
   x$interval_MY <- log(x$interval_MY)
   return(x)
 })
 
 
-# --------------------------
-# Run URW on subset data
-# --------------------------
+# -------------------------------------------------------- #
+# Fit an unbiased random walk to the simulated time series #
+# -------------------------------------------------------- #
 
-#doParallel::registerDoParallel(cl = my_cluster)
+## This is faster to do on a high performance computer. 
+## It is also better to parallelize
+
+## load data used in the article below the example code
 
 # make paleoTS objects
-sub_data_paleo <- lapply(sub_data, function(x) {
+cut_data_paleo <- lapply(cut_data, function(x) {
   as.paleoTS(mm = x$mm, vv = x$vv, nn = x$nn, tt = x$tt, oldest = "first")
 })
 
-#save(file = "./data_temp/sub_data_paleo.Rdata", sub_data_paleo)
-
-sub_data2_paleo <- lapply(sub_data2, function(x) {
+incompl_data_paleo <- lapply(incompl_data, function(x) {
   as.paleoTS(mm = x$mm, vv = x$vv, nn = x$nn, tt = x$tt, oldest = "first")
 })
 
-#save(file = "./data_temp/sub_data2_paleo.Rdata", sub_data2_paleo)
-
-sub_data3_paleo <- lapply(sub_data3, function(x) {
+biased_data_paleo <- lapply(biased_data, function(x) {
   as.paleoTS(mm = x$mm, vv = x$vv, nn = x$nn, tt = x$tt, oldest = "first")
 })
 
-#save(file = "./data_temp/sub_data3_paleo.Rdata", sub_data3_paleo)
+# fit unbiased random walk (best to do on HPC with high number of simulations)
+URW_cut <- mclapply(cut_data_paleo, opt.joint.URW) 
+URW_incompl <- lapply(incompl_data_paleo, opt.joint.URW)
+URW_biased <- lapply(biase_data_paleo, opt.joint.URW)
 
 
-#URW_sub <- mclapply(sub_data, opt.joint.URW) # best to do on HPC with high number of simulations
-#URW_sub2 <- lapply(sub_data2, opt.joint.URW) # best to do on HPC with high number of simulations
-#URW_sub3 <- lapply(sub_data3_paleo, opt.joint.URW) # best to do on HPC with high number of simulations
+## load data used in the article
+load("[PATH_TO_DATA]/URW_cut.Rdata")
+load("[PATH_TO_DATA]/URW_incompl.Rdata")
+load("[PATH_TO_DATA/URW_biased.Rdata")
 
 
-# Load URW on subset data from HPC
-load("/Users/vildeki/Dropbox (UiO)/PhD/Evo. rates and time scaling/data_temp/URW_sub.Rdata")
-load("/Users/vildeki/Dropbox (UiO)/PhD/Evo. rates and time scaling/data_temp/URW_sub2.Rdata")
-load("/Users/vildeki/Dropbox (UiO)/PhD/Evo. rates and time scaling/data_temp/URW_sub3.Rdata")
+# ------------------------- #
+# Prepare plotting and plot #
+# ------------------------- #
 
+# append time to unbiased random walk data
+URW_cut <- mapply(c, URW_cut, cut_data, SIMPLIFY = FALSE)
+URW_incompl <- mapply(c, URW_incompl, incompl_data, SIMPLIFY = FALSE)
+URW_biased <- mapply(c, URW_biased, biased_data, SIMPLIFY = FALSE)
 
-# --------------------------
-# Prepare plotting and plot
-# --------------------------
-
-# append time to data
-#URW <- mapply(c, URW_joint, data, SIMPLIFY = FALSE)
-URW_sub <- mapply(c, URW_sub, sub_data, SIMPLIFY = FALSE)
-URW_sub2 <- mapply(c, URW_sub2, sub_data2, SIMPLIFY = FALSE)
-URW_sub3 <- mapply(c, URW_sub3, sub_data3, SIMPLIFY = FALSE)
-
-# change time to length of time interval
-URW_sub <- lapply(URW_sub, function(x) {
+# calculate time interval
+URW_cut <- lapply(URW_cut, function(x) {
   x$tt = tail(x$tt, n = 1) - x$tt[1]
   return(x)
 })
 
-URW_sub2 <- lapply(URW_sub2, function(x) {
+URW_incompl <- lapply(URW_incompl, function(x) {
   if (length(x$tt) == 1){
     x$tt <- x$tt
   } else {
@@ -244,56 +264,38 @@ URW_sub2 <- lapply(URW_sub2, function(x) {
   return(x)
 })
 
-URW_sub3 <- lapply(URW_sub3, function(x) {
+URW_biased <- lapply(URW_biased, function(x) {
   x$tt = tail(x$tt, n = 1) - x$tt[1]
   return(x)
 })
 
-# bind to dataframe
-#URW_bind <- bind(URW, variance_term = "vstep", unit_list = c("tt", "vstep"))
-URW_sub_bind <- bind(URW_sub, variance_term = "vstep", unit_list = c("tt", "vstep"))
-URW_sub2_bind <- bind(URW_sub2, variance_term = "vstep", unit_list = c("tt", "vstep"))
-URW_sub3_bind <- bind(URW_sub3, variance_term = "vstep", unit_list = c("tt", "vstep"))
-darwins_sub_bind <- bind(darwins_sub, variance_term = "darwins", unit_list = c("interval_MY", "darwins"))
-darwins_sub2_bind <- bind(darwins_sub2, variance_term = "darwins", unit_list = c("interval_MY", "darwins"))
-darwins_sub3_bind <- bind(darwins_sub3, variance_term = "darwins", unit_list = c("interval_MY", "darwins"))
 
-# Only to plot increase in trait variance across time for supplementary figure
-#data <- sim(i = 1:100, ns = 1000, nn = rep(50,1000), vs = 1, vp = 0.1)
-#URW_bind <- bind(data, variance_term = "vstep", unit_list = c("mm", "tt"))
+# bind to data frame (the bind function is defined in simulations_functions.R)
+URW_cut_bind <- bind(URW_cut, variance_term = "vstep", unit_list = c("tt", "vstep"))
+URW_incompl_bind <- bind(URW_incompl, variance_term = "vstep", unit_list = c("tt", "vstep"))
+URW_biased_bind <- bind(URW_biased, variance_term = "vstep", unit_list = c("tt", "vstep"))
+darwins_cut_bind <- bind(darwins_cut, variance_term = "darwins", unit_list = c("interval_MY", "darwins"))
+darwins_incompl_bind <- bind(darwins_incompl, variance_term = "darwins", unit_list = c("interval_MY", "darwins"))
+darwins_biased_bind <- bind(darwins_biased, variance_term = "darwins", unit_list = c("interval_MY", "darwins"))
 
-#pdf(file = "./results/URW_sim_increased_var.pdf")
-#ggplot() +
-#  geom_line(data = URW_bind, aes(x = tt, y = mm, group = data_frame), color = c(wes_palette("Rushmore1")[3])) +
-#  theme_classic() + ylab("TRAIT MEAN") + xlab("TIME") +
-#  theme(axis.title = element_text(size = 15)) +
-#  theme(axis.text = element_text(size = 13))
-#dev.off()
+# log transform tt and vstep for unbiased random walk fits
+URW_cut_bind$tt <- log(URW_cut_bind$tt)
+URW_cut_bind$vstep <- log(URW_cut_bind$vstep)
+URW_incompl_bind$tt <- log(URW_incompl_bind$tt)
+URW_incompl_bind$vstep <- log(URW_incompl_bind$vstep)
+URW_biased_bind$tt <- log(URW_biased_bind$tt)
+URW_biased_bind$vstep <- log(URW_biased_bind$vstep)
 
-
-# log-transform tt and vstep
-#URW_bind$tt <- log(URW_bind$tt)
-#URW_bind$vstep <- log(URW_bind$vstep)
-URW_sub_bind$tt <- log(URW_sub_bind$tt)
-URW_sub_bind$vstep <- log(URW_sub_bind$vstep)
-URW_sub2_bind$tt <- log(URW_sub2_bind$tt)
-URW_sub2_bind$vstep <- log(URW_sub2_bind$vstep)
-URW_sub3_bind$tt <- log(URW_sub3_bind$tt)
-URW_sub3_bind$vstep <- log(URW_sub3_bind$vstep)
-
-
-# linerar regression
-summary(lm(vstep ~ tt, URW_sub_bind))
-summary(lm(vstep ~ tt, URW_sub2_bind))
-summary(lm(vstep ~ tt, URW_sub3_bind))
-summary(lm(darwins ~ interval_MY, darwins_sub_bind))
-summary(lm(darwins ~ interval_MY, darwins_sub2_bind))
-summary(lm(darwins ~ interval_MY, darwins_sub3_bind))
+# linerar regressions (manually written in to plots below)
+summary(lm(vstep ~ tt, URW_cut_bind))
+summary(lm(vstep ~ tt, URW_incompl_bind))
+summary(lm(vstep ~ tt, URW_biased_bind))
+summary(lm(darwins ~ interval_MY, darwins_cut_bind))
+summary(lm(darwins ~ interval_MY, darwins_incompl_bind))
+summary(lm(darwins ~ interval_MY, darwins_biased_bind))
 
 # plot and write to pdf 
-
-pdf(file = "./results/URW_simulations_cut.pdf")
-plot_sub <- ggplot(URW_sub_bind, aes(tt, vstep)) + ylim(c(-1.4,1)) + xlim(c(1.1,7)) +
+plot_URW_cut <- ggplot(URW_cut_bind, aes(tt, vstep)) + ylim(c(-1.4,1)) + xlim(c(1.1,7)) +
   geom_point(color = c(wes_palette("Rushmore1")[3])) + theme_classic() + theme(legend.position="none") +
   geom_abline(intercept = -0.010, slope = -0.004, linewidth = 0.7) + 
   ggtitle(expression(bold("Cut time series"))) +
@@ -306,14 +308,12 @@ plot_sub <- ggplot(URW_sub_bind, aes(tt, vstep)) + ylim(c(-1.4,1)) + xlim(c(1.1,
             fill = "white", alpha = 0, color = "black") +
   theme(axis.title = element_text(size = 15)) +
   theme(title = element_text(size = 15))
- 
-print(plot_sub)
-dev.off()
+
+print(plot_URW_cut)
 
 
 
-pdf(file = "./results/URW_simulations_mis.pdf")
-plot_sub2 <- ggplot(URW_sub2_bind, aes(tt, vstep)) + ylim(c(-3.4,1.7)) + xlim(c(0.2,7.3)) +
+plot_URW_incompl <- ggplot(URW_incompl_bind, aes(tt, vstep)) + ylim(c(-3.4,1.7)) + xlim(c(0.2,7.3)) +
   geom_point(color = c(wes_palette("Rushmore1")[3])) + theme_classic() + theme(legend.position="none") +
   geom_abline(intercept = -0.052, slope = 0.006, linewidth = 0.7) + 
   ggtitle(expression(bold("Incomplete time series"))) +
@@ -327,13 +327,11 @@ plot_sub2 <- ggplot(URW_sub2_bind, aes(tt, vstep)) + ylim(c(-3.4,1.7)) + xlim(c(
   theme(axis.title = element_text(size = 15)) +
   theme(title = element_text(size = 15))
 
-print(plot_sub2)
-dev.off()
+print(plot_URW_incompl)
 
 
 
-pdf(file = "./results/URW_simulations_biased.pdf")
-plot_sub3 <- ggplot(URW_sub3_bind, aes(tt, vstep)) + ylim(c(-6.5,1.7)) + xlim(c(1.089,7)) +
+plot_URW_biased <- ggplot(URW_biased_bind, aes(tt, vstep)) + ylim(c(-6.5,1.7)) + xlim(c(1.089,7)) +
   geom_point(color = c(wes_palette("Rushmore1")[3])) + theme_classic() + theme(legend.position="none") +
   geom_abline(intercept = -0.185, slope = 0.028, linewidth = 0.7) + 
   ggtitle(expression(bold("Biased time series"))) +
@@ -347,19 +345,10 @@ plot_sub3 <- ggplot(URW_sub3_bind, aes(tt, vstep)) + ylim(c(-6.5,1.7)) + xlim(c(
   theme(axis.title = element_text(size = 15)) +
   theme(title = element_text(size = 15))
 
-print(plot_sub3)
-dev.off()
+print(plot_URW_biased)
 
 
-# print together
-library(gridExtra)
-pdf(width = 11.50, height = 5.50, file = "./results/URW_simulations_cut_mis.pdf")
-grid.arrange(plot_sub, plot_sub2, nrow = 1)
-dev.off()
-
-
-pdf(file = "./results/darwins_simulations_cut.pdf")
-plot_sub4 <- ggplot(darwins_sub_bind, aes(interval_MY, darwins)) + ylim(c(-13.9,0)) + xlim(c(1.2,7.1)) +
+plot_darwins_cut <- ggplot(darwins_cut_bind, aes(interval_MY, darwins)) + ylim(c(-13.9,0)) + xlim(c(1.2,7.1)) +
   geom_point(color = c(wes_palette("Rushmore1")[3])) + theme_classic() + theme(legend.position="none") +
   geom_abline(intercept = -0.609, slope = -0.499, linewidth = 0.7) + 
   ggtitle(expression(bold("Cut time series"))) +
@@ -373,12 +362,10 @@ plot_sub4 <- ggplot(darwins_sub_bind, aes(interval_MY, darwins)) + ylim(c(-13.9,
   theme(axis.title = element_text(size = 15)) +
   theme(title = element_text(size = 15))
 
-print(plot_sub4)
-dev.off()
+print(plot_darwins_cut)
 
 
-pdf(file = "./results/darwins_simulations_mis.pdf")
-plot_sub5 <- ggplot(darwins_sub2_bind, aes(interval_MY, darwins)) + ylim(c(-13.9,0)) + xlim(c(0.2,7.1)) +
+plot_darwins_incompl <- ggplot(darwins_incompl_bind, aes(interval_MY, darwins)) + ylim(c(-13.9,0)) + xlim(c(0.2,7.1)) +
   geom_point(color = c(wes_palette("Rushmore1")[3])) + theme_classic() + theme(legend.position="none") +
   geom_abline(intercept = -0.754, slope = -0.479, linewidth = 0.7) + 
   ggtitle(expression(bold("Incomplete time series"))) +
@@ -392,11 +379,10 @@ plot_sub5 <- ggplot(darwins_sub2_bind, aes(interval_MY, darwins)) + ylim(c(-13.9
   theme(axis.title = element_text(size = 15)) +
   theme(title = element_text(size = 15))
 
-print(plot_sub5)
-dev.off()
+print(plot_darwins_incompl)
 
-pdf(file = "./results/darwins_simulations_biased.pdf")
-plot_sub6 <- ggplot(darwins_sub3_bind, aes(interval_MY, darwins)) + ylim(c(-16,0.24)) + xlim(c(2,7.1)) +
+
+plot_darwins_biased <- ggplot(darwins_biased_bind, aes(interval_MY, darwins)) + ylim(c(-16,0.24)) + xlim(c(2,7.1)) +
   geom_point(color = c(wes_palette("Rushmore1")[3])) + theme_classic() + theme(legend.position="none") +
   geom_abline(intercept = -0.781, slope = -0.475, linewidth = 0.7) + 
   ggtitle(expression(bold("Biased time series"))) +
@@ -410,29 +396,13 @@ plot_sub6 <- ggplot(darwins_sub3_bind, aes(interval_MY, darwins)) + ylim(c(-16,0
   theme(axis.title = element_text(size = 15)) +
   theme(title = element_text(size = 15))
 
-print(plot_sub6)
-dev.off()
-
-# print together
-pdf(width = 11.50, height = 5.50, file = "./results/darwins_simulations_cut_mis.pdf")
-grid.arrange(plot_sub4, plot_sub5, nrow = 1)
-dev.off()
-
-# print together
-pdf(width = 11, height = 8.50, file = "./results/URW_darwins_simulations_cut_mis.pdf")
-grid.arrange( plot_sub4, plot_sub5, plot_sub, plot_sub2, nrow = 2)
-dev.off()
-
-# print together
-pdf(width = 11.50, height = 5.50, file = "./results/URW_darwins_simulations_biased.pdf")
-grid.arrange(plot_sub3, plot_sub6, nrow = 1)
-dev.off()
+print(plot_darwins_biased)
 
 
-# all plots
-pdf(width = 12, height = 12, file = "./results/darwins_URW_sim.pdf")
-grid.arrange(plot_sub4, plot_sub, plot_sub5, plot_sub2,
-             plot_sub6, plot_sub3, nrow = 3)
+# print all plots together to file
+pdf(width = 12, height = 12, file = "[PATH_TO_RESULTS_FOLDER]/simulations.pdf")
+grid.arrange(plot_darwins_cut, plot_URW_cut, plot_darwins_incompl, plot_URW_incompl,
+             plot_darwins_biased, plot_URW_biased, nrow = 3)
 dev.off()
 
 
