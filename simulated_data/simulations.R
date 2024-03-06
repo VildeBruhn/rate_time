@@ -21,7 +21,12 @@ library(foreach)
 library(gridExtra)
 
 
-# import function script
+######################################
+## REMEMBER TO CHANGE PATH TO FILES ## 
+######################################
+
+
+# import functions
 source(file = "[PATH_TO_SCRIPT]/simulations_functions.R")
 
 # ------------- #
