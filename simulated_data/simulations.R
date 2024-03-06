@@ -24,8 +24,9 @@ library(gridExtra)
 # import function script
 source(file = "[PATH_TO_SCRIPT]/simulations_functions.R")
 
-
-#### SIMULATE DATA ###
+# ------------- #
+# Simulated data #
+# ------------- #
 
 # example of how to simulate unbiased random walk time series 
 # (sim function from simulations_functions.R)
@@ -34,8 +35,9 @@ data_sim <- sim(i = 1:1000, ns = 1000, nn = rep(50,1000), vs = 1, vp = 0.1)
 ## load simulated data used in the article
 load("[PATH_TO_DATA]/data_sim.Rdata")
 
-
-### CUT SIMULATIONS RANDOMLY IN TWO ###
+# ------------------------------- #
+# Cut simulations randomly in two #
+# ------------------------------- #
 
 ## example of how to cut data (load data from article below)
 
@@ -65,8 +67,9 @@ for (i in 1:length(new_data)){
 ## load cut data used in the article
 load("[PATH_TO_DATA]/cut_data.Rdata")
 
-
-### MAKE INCOMPLETE DATA BY REMOVING POPULATIONS RANDOMLY ###
+# ----------------------------------------------------- #
+# Make incomplete data by removing populations randomly #
+# ----------------------------------------------------- #
 
 ## example of how to remove populations (load data from article below)
 
@@ -85,7 +88,9 @@ for (i in 1:length(cut_data)){
 load("[PATH_TO_DATA]/incompl_data.Rdata")
 
 
-### MAKE BIASED DATA BY REMOVING TIME CHUNKS OF POPULATIONS RANDOMLY ###
+# ---------------------------------------------------------------- # 
+# Make biased data by removing time chunks of populations randomly #
+# ---------------------------------------------------------------- #
 
 ## example of how bias data (load data from article below)
 

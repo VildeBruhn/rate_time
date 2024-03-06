@@ -1,9 +1,6 @@
-# -----------------------------
-# Functions for simulations.R
-# -----------------------------
-
-## requires paleoTS version 0.5.3 
-
+# --------------------------- #
+# FUNCTIONS FOR simulations.R #
+# --------------------------- #
 
 # ----------------------------------------------- #
 # Simulate unbiased random walk time series (sim) #
