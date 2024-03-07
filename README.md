@@ -1,6 +1,6 @@
 # EFFECTS OF MODEL ADEQUACY, SAMPLING ERROR AND MODEL IDENTIFIABILITY ON EVOLUTIONARY RATES
 
-__Article:__ 
+__Article:__ Unpublished
 
 __Authors:__ Vilde Bruhn Kinneberg<sup>1*</sup> and Kjetil Lysne Voje<sup>1</sup>
 
@@ -8,7 +8,7 @@ __Affiliation:__ <sup>1</sup>Natural History Museum, University of Oslo
 
 __Contact:__ <sup>*</sup>v.b.kinneberg@nhm.uio.no
 
-__Journal:__ 
+__Journal:__ NA
 
 __Year:__ 2024  
 
