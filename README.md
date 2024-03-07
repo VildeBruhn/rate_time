@@ -1,4 +1,4 @@
-# Introgression between highly divergent fungal sister species
+# EFFECTS OF MODEL ADEQUACY AND SAMPLING ERROR ON EVOLUTIONARY RATES
 
 __Article:__ 
 
