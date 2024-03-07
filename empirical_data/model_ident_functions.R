@@ -3,6 +3,10 @@
 # --------------------------- #
 
 
+# ---------------------------------- #
+# Likelihood surface (like_surf_URW) #
+# ---------------------------------- #
+
 # define function with lower and upper output (modified from evoTS::loglik.surface.URW)
 like_surf_URW <- function (y, vstep.vec, header_plot, save_plot, pool = TRUE) 
 {
@@ -45,6 +49,11 @@ like_surf_URW <- function (y, vstep.vec, header_plot, save_plot, pool = TRUE)
   like_surf_plot
   return(out)
 }
+
+
+# --------------------------------------------------------------- #
+# Search likelihood space and plot landscapes (search_likelihood) #
+# --------------------------------------------------------------- #
 
 # search likelihood space with plot output
 search_likelihood <- function(data, data_list, header_plot, save_plot){
@@ -192,8 +201,11 @@ search_likelihood <- function(data, data_list, header_plot, save_plot){
 }
 
 
-# estimate new vsteps and regressions
+# ----------------------------------------------------------------------- #
+# Estimate vsteps and perform mixed effect linear regressions (vstep_reg) #
+# ----------------------------------------------------------------------- #
 
+# estimate new vsteps and regressions
 vstep_reg <- function(list_data, df, lw_up_data){
   
   for (i in 1:length(list_data)){

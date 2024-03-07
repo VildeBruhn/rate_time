@@ -2,7 +2,6 @@
 # MODEL IDENTIFIABILITY #
 # --------------------- #
 
-rm(list = ls())
 
 #install.packages("evoTS")        version 0.1.2
 #install.packages("paleoTS")      version 0.5.3
@@ -10,7 +9,6 @@ rm(list = ls())
 #install.packages("tidyverse")
 #install.packages("Matrix")
 #install.packages("lme4")
-#install.packages("MuMIn")
 #install.packages("broom.mixed")
 #install.packages("wesanderson")  colors for plots 
 
@@ -20,7 +18,6 @@ library(adePEM)
 library(tidyverse)
 library(Matrix)
 library(lme4)
-#library(MuMIn)
 library(broom.mixed)
 library(wesanderson)
 
@@ -41,14 +38,14 @@ source("[PATH_TO_SCRIPT]/model_ident_functions.R")
 ## The data is processed in the script empirical.R
 
 # import complete, relative fit and absolute fit datasets
-load("./complete.Rdata")
-load("./relative.Rdata")
-load("./absolute.Rdata")
+load("[PATH_TO_DATA]/complete.Rdata")
+load("[PATH_TO_DATA]/relative.Rdata")
+load("[PATH_TO_DATA]/absolute.Rdata")
 
 # import dataframes with estimated vstep and some metadata
-load("./bind_URW_compl.Rdata")
-load("./bind_URW_rel.Rdata")
-load("./bind_URW_abs.Rdata")
+load("[PATH_TO_DATA]/bind_URW_compl.Rdata")
+load("[PATH_TO_DATA]/bind_URW_rel.Rdata")
+load("[PATH_TO_DATA]/bind_URW_abs.Rdata")
 
 
 # ----------------------- #
@@ -65,9 +62,9 @@ explore_rel <- search_likelihood(bind_URW_rel, relative, bind_URW_rel, save_plot
 explore_abs <- search_likelihood(bind_URW_abs, absolute, bind_URW_abs, save_plot = "[PATH_TO_FOLDER]")
 
 # load data with lower and upper vsteps from article
-load("./l_u_compl.Rdata")
-load("./l_u_rel.Rdata")
-load("./l_u_abs.Rdata")
+load("[PATH_TO_DATA]/l_u_compl.Rdata")
+load("[PATH_TO_DATA]/l_u_rel.Rdata")
+load("[PATH_TO_DATA]/l_u_abs.Rdata")
 
 
 # ----------------------------------------------------------- #
