@@ -2,7 +2,7 @@
 
 __Article:__ 
 
-__Authors:__ Vilde Bruhn Kinneberg$$^*1$$ and Kjetil Lysne Voje$$^1$$
+__Authors:__ Vilde Bruhn Kinneberg<sup>*1</sup> and Kjetil Lysne Voje<sup>1</sup>
 
 __Contact:__ v.b.kinneberg@nhm.uio.no
 
