@@ -22,6 +22,6 @@ __Files:__
 
 _simulated_data –_ this folder conatins scripts and data used in the simulation section of the article. The main script is called simulations.R. The script uses the rest of the scripts and data in the folder. simulations.R is commented so that it should be possible to follow the instructions in the script to produce the results from the article.
 
-_empirical_data –_ this folder conatins scripts and data used in the empirical section of the article. The two main scripts are called empirical.R and model_ident.R. These scripts use the rest of the scripts and data in the folder. empirical.R and model_ident.R are commented so that it should be possible to follow the instructions in the scripts to produce the results from the article. The folder also contains some results: the zip-files likelihood_compl_plots.zip, lokelihood_rel_plots.zip and likelihood_abs_plots.zip are results produced in the model_ident.R script and are also refered to in the article. 
+_empirical_data –_ this folder conatins scripts and data used in the empirical section of the article. The two main scripts are called empirical.R and model_ident.R. These scripts use the rest of the scripts and data in the folder. empirical.R and model_ident.R are commented so that it should be possible to follow the instructions in the scripts to produce the results from the article. 
 
-_supplementary_material_1 –_
+_supplementary_material_1 –_ The folder contains likelihood surface plots reffered to as SM1 in the article. The plots are produced in model_ident.R. The results are stored as zip-files.
