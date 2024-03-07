@@ -2,7 +2,7 @@
 
 __Article:__ 
 
-__Authors:__ Vilde Bruhn Kinneberg<sup>*1</sup> and Kjetil Lysne Voje<sup>1</sup>
+__Authors:__ Vilde Bruhn Kinneberg<sup>1*</sup> and Kjetil Lysne Voje<sup>1</sup>
 
 __Affiliation:__ <sup>1</sup>Natural History Museum, University of Oslo
 
