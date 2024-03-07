@@ -52,8 +52,8 @@ load("[PATH_TO_DATA]/bind_URW_abs.Rdata")
 # Explore goodness of fit #
 # ----------------------- #
 
-## Plots from the articles are saved in the folders likelihood_compl_plots,
-## likelihood_rel_plots and likelihood_abs_plots.
+## Plots from the articles are saved in the zip-files likelihood_compl_plots.zip,
+## likelihood_rel_plots.zip and likelihood_abs_plots.zip.
 
 # examples of how to explore likelihood space and find lower and upper vsteps
 # (function from model_ident_functions.R)
