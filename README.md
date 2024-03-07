@@ -4,7 +4,9 @@ __Article:__
 
 __Authors:__ Vilde Bruhn Kinneberg<sup>*1</sup> and Kjetil Lysne Voje<sup>1</sup>
 
-__Contact:__ v.b.kinneberg@nhm.uio.no
+__Affiliaction:__ <sup>1</sup>Natural History Museum, Univeristy of Oslo
+
+__Contact:__ <sup>*</sup>v.b.kinneberg@nhm.uio.no
 
 __Journal:__ 
 
