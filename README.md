@@ -18,7 +18,7 @@ __Info:__ This repository contains scripts and data used for analyses in the pub
 
 __Responsibility:__ VBK is responsible for writing code and analyses of data. KLV has contributed with ideas and comments. The time series data are downloaded from the [PETS database](https://pets.nhm.uio.no/). 
 
-__Files:__ 
+__Files__ 
 
 _simulated_data –_ this folder conatins scripts and data used in the simulation section of the article. The main script is called simulations.R. The script uses the rest of the scripts and data in the folder. simulations.R is commented so that it should be possible to follow the instructions in the script to produce the results from the article.
 
