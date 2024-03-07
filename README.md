@@ -20,6 +20,6 @@ __Responsibility:__ VBK is responsible for writing code and analysis of data. KL
 
 __Files:__ 
 
-_simulated_data –_ this folder conatins scripts and data used in the simulation section of the article. The main scripts is called simulations.R. The script uses the rest of the script and data in the folder. simulations.R is commented and it should be possible to follow the instructions in the script to produce the results from the article.
+_simulated_data –_ this folder conatins scripts and data used in the simulation section of the article. The main script is called simulations.R. The script uses the rest of the scripts and data in the folder. simulations.R is commented so that it should be possible to follow the instructions in the script to produce the results from the article.
 
-_empirical_data –_ this folder conatins scripts and data used in the empirical section of the article. The main scripts is called simulations.R. The script uses the rest of the script and data in the folder. simulations.R is commented and it should be possible to follow the instructions in the script to produce the results from the article.
+_empirical_data –_ this folder conatins scripts and data used in the empirical section of the article. The two main scripts are called empirical.R and model_ident.R. These scripts use the rest of the scripts and data in the folder. empirical.R and model_ident.R are commented so that it should be possible to follow the instructions in the scripts to produce the results from the article. The folder also contains some results: the zip-files likelihood_compl_plots.zip, lokelihood_rel_plots.zip and likelihood_abs_plots.zip are results produced in the model_ident.R script and are also refered to in the article. 
