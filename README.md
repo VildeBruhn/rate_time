@@ -16,7 +16,7 @@ __Abstract:__ Evolutionary rates are found to decrease with increased time. How 
 
 __Info:__ This repository contains scripts and data used for analyses in the publication.
 
-__Responsibility:__ VBK is responsible for writing code and analysis of data. KLV has contributed with ideas and comments. The time series data are downloaded from the [PETS database](https://pets.nhm.uio.no/). 
+__Responsibility:__ VBK is responsible for writing code and analyses of data. KLV has contributed with ideas and comments. The time series data are downloaded from the [PETS database](https://pets.nhm.uio.no/). 
 
 __Files:__ 
 
