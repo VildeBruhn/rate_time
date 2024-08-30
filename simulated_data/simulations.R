@@ -25,9 +25,10 @@ library(gridExtra)
 ## REMEMBER TO CHANGE PATH TO FILES ## 
 ######################################
 
+PATH = "./GitHub/rate_time/simulated_data/"
 
 # import functions
-source(file = "[PATH_TO_SCRIPT]/simulations_functions.R")
+source(paste0(PATH, "simulations_functions.R"))
 
 # ------------- #
 # Simulated data #
@@ -38,7 +39,7 @@ source(file = "[PATH_TO_SCRIPT]/simulations_functions.R")
 data_sim <- sim(i = 1:1000, ns = 1000, nn = rep(50,1000), vs = 1, vp = 0.1)
 
 ## load simulated data used in the article
-load("[PATH_TO_DATA]/data_sim.Rdata")
+load(paste0(PATH, "data_sim.Rdata"))
 
 # ------------------------------- #
 # Cut simulations randomly in two #
@@ -70,7 +71,7 @@ for (i in 1:length(new_data)){
 }
 
 ## load cut data used in the article
-load("[PATH_TO_DATA]/cut_data.Rdata")
+load(paste0(PATH, "cut_data.Rdata"))
 
 # ----------------------------------------------------- #
 # Make incomplete data by removing populations randomly #
@@ -90,7 +91,7 @@ for (i in 1:length(cut_data)){
 }
 
 ## load cut and incomplete data used in the article
-load("[PATH_TO_DATA]/incompl_data.Rdata")
+load(paste0(PATH, "incompl_data.Rdata"))
 
 
 # ---------------------------------------------------------------- # 
@@ -133,7 +134,7 @@ for (i in 1:length(incompl_data)){
 }
 
 ## load data used in the article
-load("[PATH_TO_DATA]/biased_data.Rdata")
+load(paste0(PATH, "biased_data.Rdata"))
 
 
 # ------------------------------------- #
@@ -230,9 +231,9 @@ URW_biased <- lapply(biase_data_paleo, opt.joint.URW)
 
 
 ## load data used in the article
-load("[PATH_TO_DATA]/URW_cut.Rdata")
-load("[PATH_TO_DATA]/URW_incompl.Rdata")
-load("[PATH_TO_DATA]/URW_biased.Rdata")
+load(paste0(PATH, "URW_cut.Rdata"))
+load(paste0(PATH, "URW_incompl.Rdata"))
+load(paste0(PATH, "URW_biased.Rdata"))
 
 
 # ------------------------- #
@@ -331,11 +332,11 @@ plot_URW_biased <- ggplot(URW_biased_bind, aes(tt, vstep)) + ylim(c(-6.5,1.7)) +
   geom_abline(intercept = -0.185, slope = 0.028, linewidth = 0.7) + 
   ggtitle(expression(bold("Biased time series"))) +
   ylab(expression(paste("Log ", italic(v)["step"]))) + xlab(expression("Log time")) +
-  annotate("text", x = 5.5, y = -3.7, parse = TRUE, label="italic(y)==-0.185+0.028~italic(x)", size = 5) +
-  annotate("text", x = 5.5, y = -4.4, parse = TRUE, label="italic(SE)=='' %+-% '0.005'", size = 5) +
-  annotate("text", x = 5.5, y = -5.1, parse = TRUE, label = "italic(R)^2== 0.013", size = 5) +
-  annotate("text", x = 5.5, y = -5.85, parse = TRUE, label = "italic(n)== 1984", size = 5) +
-  geom_rect(aes(xmin = 4, xmax = 7, ymin = -3, ymax = -6.5), 
+  annotate("text", x = 2.55, y = -3.7, parse = TRUE, label="italic(y)==-0.185+0.028~italic(x)", size = 5) +
+  annotate("text", x = 2.55, y = -4.4, parse = TRUE, label="italic(SE)=='' %+-% '0.005'", size = 5) +
+  annotate("text", x = 2.55, y = -5.1, parse = TRUE, label = "italic(R)^2== 0.013", size = 5) +
+  annotate("text", x = 2.55, y = -5.85, parse = TRUE, label = "italic(n)== 1984", size = 5) +
+  geom_rect(aes(xmin = 1.1, xmax = 4, ymin = -3, ymax = -6.5), 
             fill = "white", alpha = 0, color = "black") +
   theme(axis.title = element_text(size = 15)) +
   theme(title = element_text(size = 15))
@@ -395,7 +396,7 @@ print(plot_darwins_biased)
 
 
 # print all plots together to file
-pdf(width = 12, height = 12, file = "[PATH_TO_RESULTS_FOLDER]/simulations.pdf")
+pdf(width = 12, height = 12, file = "[PATH_TO_FOLDER]/simulations.pdf")
 grid.arrange(plot_darwins_cut, plot_URW_cut, plot_darwins_incompl, plot_URW_incompl,
              plot_darwins_biased, plot_URW_biased, nrow = 3)
 dev.off()

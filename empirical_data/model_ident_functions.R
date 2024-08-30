@@ -68,7 +68,7 @@ search_likelihood <- function(data, data_list, header_plot, save_plot){
     if (data$vstep[i] < 0.01){
       u <- 0.01
       l <- 0
-      vstep.vec <- seq(l, u, 0.00001)
+        vstep.vec <- seq(l, u, 0.00001)
       lower <- like_surf_URW(y = data_list[[i]], vstep.vec = vstep.vec, header_plot = header_plot[i,1], save_plot = paste0(save_plot, "/", header_plot[i,1], ".pdf"))[1,1]
       upper <- like_surf_URW(y = data_list[[i]], vstep.vec = vstep.vec, header_plot = header_plot[i,1], save_plot = paste0(save_plot, "/", header_plot[i,1], ".pdf"))[1,2]
       while(upper == u){

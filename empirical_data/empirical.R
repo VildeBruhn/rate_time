@@ -3,8 +3,8 @@
 # -------------- #
 
 # packages needed
-#install.packages("evoTS")        # version 1.0.2
-#install.packages("paleoTS")      # version 0.5.3
+#install.packages("evoTS")        # version 1.0.3
+#install.packages("paleoTS")      # version 0.6.1
 #install.packages("adePEM")
 #install.packages("tidyverse")
 #install.packages("wesanderson")  # colors for figures
@@ -30,9 +30,11 @@ library(broom.mixed)
 ## REMEMBER TO CHANGE PATH TO FILES ## 
 ######################################
 
+PATH = "[PATH_TO_DATA_FOLDER]"
 
 # import functions
-source("[PATH_TO_SCRIPT]/empirical_functions.R")
+source(paste0(PATH, "empirical_functions.R"))
+
 
 
 #--------------------------------------- #
@@ -40,8 +42,8 @@ source("[PATH_TO_SCRIPT]/empirical_functions.R")
 #--------------------------------------- #
 
 # import time series and metadata
-timeseries <- read_delim("[PATH_TO_FILE]/timeseries.txt", col_names = TRUE, delim = "\t")
-metadata <- read_delim("[PATH_TO_FILE]/metadata.txt", col_names = TRUE, delim = "\t")
+timeseries <- read_delim(paste0(PATH, "timeseries.txt"), col_names = TRUE, delim = "\t")
+metadata <- read_delim(paste0(PATH, "metadata.txt"), col_names = TRUE, delim = "\t")
 
 # join data frames
 df <- left_join(timeseries, metadata, by = c("tsID"))
@@ -70,19 +72,36 @@ complete <- lapply(complete_meta, function(x) {
   as.paleoTS(mm = x$mm, vv = x$vv, nn = x$N, tt = x$tt, oldest = "first")
 })
 
-
 # ------------------------- #
 # Make relative fit dataset #
 # ------------------------- #
 
-# example of how to run model test (takes time)
+# example of how to run model test (takes time, load model test used
+# in article below)
 model_test <- lapply(complete, fit.all.univariate)
+## this will give some error messages with paleoTS v0.6.1,
+## circumvent the errors with this approach:
 
-# load model test used in article
-load("[PATH_TO_DATA]/model_test.Rdata")
+model_test <- list()
+for(i in 1:length(complete)){
+  try(model_test[[i]] <- fit.all.univariate(complete[[i]]))
+}
 
 # add metadata
 model_test_meta <- mapply(c, model_test, complete_meta, SIMPLIFY = FALSE)
+
+# add time series IDs
+names_list <- names(complete)
+names(model_test) <- names_list
+names(model_test_meta) <- names_list
+
+# remove time series that didn't work with paleoTS v0.6.1
+model_test_meta = model_test_meta[-which(sapply(model_test, is.null))]
+model_test = model_test[-which(sapply(model_test, is.null))]
+
+## load model test used in article
+load(file = paste0(PATH, "model_test.Rdata"))
+load(file = paste0(PATH, "model_test_meta.Rdata"))
 
 # get only time series that fit an unbiased random walk best according to AICc
 # (relative_fit function from empirical_functions.R)
@@ -110,7 +129,6 @@ absolute <- mapply(c, relative, adequacy, SIMPLIFY = FALSE)
 # get only adequate unbiased random walk time series 
 # (adequate function from empirical_functions.R)
 absolute <- adequate(absolute)
-
 
 #--------------------------------------- #
 # Calculate darwins for complete dataset #
@@ -185,7 +203,7 @@ darwins_rel_lmer_plot <- ggplot(bind_darwins_rel, aes(interval_MY, darwins)) +
   annotate("text", x = -5, y = -3, parse = TRUE, label="italic(y)==-2.063-0.872~italic(x)", size = 5) +
   annotate("text", x = -5, y = -4.5, parse = TRUE, label="italic(SE)=='' %+-% '0.065'", size = 5) +
   annotate("text", x = -5, y = -6, parse = TRUE, label = "italic(R)^2== 0.736", size = 5) +
-  annotate("text", x = -5, y = -7.7, parse = TRUE, label = "italic(n)== 164", size = 5) +
+  annotate("text", x = -5, y = -7.7, parse = TRUE, label = "italic(n)== 163", size = 5) +
   geom_rect(aes(xmin = -7.2, xmax = -2.8, ymin = -8.7, ymax = -1.8), 
             fill = "white", alpha = 0, color = "black") +
   theme(axis.title = element_text(size = 15), ) +
@@ -221,10 +239,10 @@ darwins_abs_lmer_plot <- ggplot(bind_darwins_abs, aes(interval_MY, darwins)) +
   geom_abline(intercept = darwins_abs_tidy$estimate[1], slope = darwins_abs_tidy$estimate[2], linewidth = 0.7) + 
   ggtitle(expression(paste(bold("C")))) +
   ylab(expression(paste("Log ", italic("darwins")))) + xlab(("Log time")) +
-  annotate("text", x = -5, y = -3, parse = TRUE, label="italic(y)==-2.074-0.889~italic(x)", size = 5) +
-  annotate("text", x = -5, y = -4.5, parse = TRUE, label="italic(SE)=='' %+-% '0.067'", size = 5) +
-  annotate("text", x = -5, y = -6, parse = TRUE, label = "italic(R)^2== 0.735", size = 5) +
-  annotate("text", x = -5, y = -7.7, parse = TRUE, label = "italic(n)== 148", size = 5) +
+  annotate("text", x = -5, y = -3, parse = TRUE, label="italic(y)==-2.074-0.892~italic(x)", size = 5) +
+  annotate("text", x = -5, y = -4.5, parse = TRUE, label="italic(SE)=='' %+-% '0.068'", size = 5) +
+  annotate("text", x = -5, y = -6, parse = TRUE, label = "italic(R)^2== 0.734", size = 5) +
+  annotate("text", x = -5, y = -7.7, parse = TRUE, label = "italic(n)== 145", size = 5) +
   geom_rect(aes(xmin = -7.2, xmax = -2.8, ymin = -8.8, ymax = -1.7), 
             fill = "white", alpha = 0, color = "black") +
   theme(axis.title = element_text(size = 15), ) +
@@ -236,7 +254,7 @@ print(darwins_abs_lmer_plot)
 # Estimate vstep from complete dataset, not accounting for sampling error #
 # ----------------------------------------------------------------------- #
 
-# set variance in emperical data to near zero
+# set variance in empirical data to near zero
 complete_no_vv <- lapply(complete, function(x){
   len <- length(x$vv)
   x$vv <- rep(0.00000001, len)
@@ -246,7 +264,7 @@ complete_no_vv <- lapply(complete, function(x){
 # fit an unbiased random walk
 URW_compl_no_error <- lapply(complete_no_vv, opt.joint.URW, pool = TRUE)
 
-# append parameters from test to ln_data_meta
+# append parameters from test to complete_meta
 URW_compl_no_error <- mapply(c, complete_meta, URW_compl_no_error, SIMPLIFY = FALSE)
 
 # bind data and choose variables
@@ -279,9 +297,9 @@ URW_compl_no_error_lmer_plot <- ggplot(bind_URW_compl_no_error, aes(interval_MY,
   geom_abline(intercept = URW_compl_no_error_tidy$estimate[1], slope = URW_compl_no_error_tidy$estimate[2], linewidth = 0.7) + 
   ggtitle(expression(paste(bold("D")))) +
   ylab(expression(paste("Log ", italic("v")[bold("step")]))) + xlab("Log time") +
-  annotate("text", x = -5, y = -6, parse = TRUE, label="italic(y)==-2.385-0.681~italic(x)", size = 5) +
-  annotate("text", x = -5, y = -8, parse = TRUE, label="italic(SE)=='' %+-% '0.061'", size = 5) +
-  annotate("text", x = -5, y = -10, parse = TRUE, label = "italic(R)^2== 0.515", size = 5) +
+  annotate("text", x = -5, y = -6, parse = TRUE, label="italic(y)==-2.323-0.707~italic(x)", size = 5) +
+  annotate("text", x = -5, y = -8, parse = TRUE, label="italic(SE)=='' %+-% '0.062'", size = 5) +
+  annotate("text", x = -5, y = -10, parse = TRUE, label = "italic(R)^2== 0.533", size = 5) +
   annotate("text", x = -5, y = -12.2, parse = TRUE, label = "italic(n)== 643", size = 5) +
   geom_rect(aes(xmin = -7.3, xmax = -2.7, ymin = -13.7, ymax = -4.5), 
             fill = "white", alpha = 0, color = "black") +
@@ -340,10 +358,10 @@ URW_rel_no_error_lmer_plot <- ggplot(bind_URW_rel_no_error, aes(interval_MY, vst
   geom_abline(intercept = URW_rel_no_error_tidy$estimate[1], slope = URW_rel_no_error_tidy$estimate[2], linewidth = 0.7) + 
   ggtitle(expression(bold("E"))) +
   ylab(expression(paste("Log ", italic(v)["step"]))) + xlab(expression("Log time")) +
-  annotate("text", x = -5, y = -4.5, parse = TRUE, label="italic(y)==-2.640-0.815~italic(x)", size = 5) +
-  annotate("text", x = -5, y = -6, parse = TRUE, label="italic(SE)=='' %+-% '0.091'", size = 5) +
-  annotate("text", x = -5, y = -7.5, parse = TRUE, label = "italic(R)^2== 0.603", size = 5) +
-  annotate("text", x = -5, y = -9.2, parse = TRUE, label = "italic(n)== 165", size = 5) +
+  annotate("text", x = -5, y = -4.5, parse = TRUE, label="italic(y)==-2.600-0.836~italic(x)", size = 5) +
+  annotate("text", x = -5, y = -6, parse = TRUE, label="italic(SE)=='' %+-% '0.089'", size = 5) +
+  annotate("text", x = -5, y = -7.5, parse = TRUE, label = "italic(R)^2== 0.602", size = 5) +
+  annotate("text", x = -5, y = -9.2, parse = TRUE, label = "italic(n)== 164", size = 5) +
   geom_rect(aes(xmin = -7.3, xmax = -2.7, ymin = -10.7, ymax = -3), 
             fill = "white", alpha = 0, color = "black") +
   theme(axis.title = element_text(size = 15)) +
@@ -402,10 +420,10 @@ URW_abs_no_error_lmer_plot <- ggplot(bind_URW_abs_no_error, aes(interval_MY, vst
   geom_abline(intercept = URW_abs_no_error_tidy$estimate[1], slope = URW_abs_no_error_tidy$estimate[2], linewidth = 0.7) + 
   ggtitle(expression(bold("F"))) +
   ylab(expression(paste("Log ", italic(v)["step"]))) + xlab(expression("Log time")) +
-  annotate("text", x = -5, y = -4.5, parse = TRUE, label="italic(y)==-2.791-0.832~italic(x)", size = 5) +
+  annotate("text", x = -5, y = -4.5, parse = TRUE, label="italic(y)==-2.661-0.827~italic(x)", size = 5) +
   annotate("text", x = -5, y = -6, parse = TRUE, label="italic(SE)=='' %+-% '0.096'", size = 5) +
-  annotate("text", x = -5, y = -7.5, parse = TRUE, label = "italic(R)^2== 0.614", size = 5) +
-  annotate("text", x = -5, y = -9.2, parse = TRUE, label = "italic(n)== 131", size = 5) +
+  annotate("text", x = -5, y = -7.5, parse = TRUE, label = "italic(R)^2== 0.571", size = 5) +
+  annotate("text", x = -5, y = -9.2, parse = TRUE, label = "italic(n)== 145", size = 5) +
   geom_rect(aes(xmin = -7.4, xmax = -2.7, ymin = -10.5, ymax = -3), 
             fill = "white", alpha = 0, color = "black") +
   theme(axis.title = element_text(size = 15)) +
@@ -418,23 +436,33 @@ print(URW_abs_no_error_lmer_plot)
 # Estimate vstep from the complete dataset, with sampling error #
 # ------------------------------------------------------------- #
 
-# fit an unbiased random walk
+# example of how to fit an unbiased random walk
 URW_compl <- lapply(complete, opt.joint.URW, pool = TRUE)
+## this will give some error messages with paleoTS v0.6.1,
+## circumvent the errors with this approach:
+
+URW_compl_fit <- list()
+for(i in 1:length(complete)){
+  print(i)
+  try(URW_compl_fit[[i]] <- opt.joint.URW(complete[[i]], pool = TRUE))
+}
 
 # append metadata
-URW_compl <- mapply(c, complete_meta, URW_compl, SIMPLIFY = FALSE)
+URW_compl <- mapply(c, complete_meta, URW_compl_fit, SIMPLIFY = FALSE)
+
+# remove time series that didn't work with paleoTS v0.6.1
+URW_compl = URW_compl[-which(sapply(URW_compl_fit, is.null))]
 
 # bind data and choose variables
 bind_URW_compl <- bind(data = URW_compl, variance_term = "vstep",
                        variables = c("popID","vstep", "interval_MY", "nn"))
 
-# put tt and vstep on log scale (warning ok)
+# remove time series with wrongly estimated rate (vstep) in paleoTS v0.6.1
+bind_URW_compl <- bind_URW_compl[!bind_URW_compl$vstep == 1.000000e-06, ]
+
+# put tt and vstep on log scale
 bind_URW_compl$interval_MY <- log(bind_URW_compl$interval_MY)
 bind_URW_compl$vstep <- log(bind_URW_compl$vstep)
-
-# remove infinite values
-bind_URW_compl <- bind_URW_compl %>% filter_all(all_vars(!is.infinite(.)))
-bind_URW_compl <- bind_URW_compl %>% filter_all(all_vars(!is.na(vstep)))
 
 # mixed effect linear regression
 URW_compl_lmer <- lmer(vstep ~ interval_MY + (1|popID), bind_URW_compl, weights = 1/nn)
@@ -453,10 +481,10 @@ URW_compl_lmer_plot <- ggplot(bind_URW_compl, aes(interval_MY, vstep)) +
   geom_abline(intercept = URW_compl_tidy$estimate[1], slope = URW_compl_tidy$estimate[2], linewidth = 0.7) + 
   ggtitle(expression(paste(bold("G")))) +
   ylab(expression(paste("Log ", italic("v")["step"]))) + xlab("Log time") +
-  annotate("text", x = -5, y = -6.2, parse = TRUE, label="italic(y)==-3.481-0.780~italic(x)", size = 5) +
-  annotate("text", x = -5, y = -8.2, parse = TRUE, label="italic(SE)=='' %+-% '0.065'", size = 5) +
-  annotate("text", x = -5, y = -10.2, parse = TRUE, label = "italic(R)^2== 0.584", size = 5) +
-  annotate("text", x = -5, y = -12.4, parse = TRUE, label = "italic(n)== 529", size = 5) +
+  annotate("text", x = -5, y = -6.2, parse = TRUE, label="italic(y)==-3.583-0.762~italic(x)", size = 5) +
+  annotate("text", x = -5, y = -8.2, parse = TRUE, label="italic(SE)=='' %+-% '0.072'", size = 5) +
+  annotate("text", x = -5, y = -10.2, parse = TRUE, label = "italic(R)^2== 0.557", size = 5) +
+  annotate("text", x = -5, y = -12.4, parse = TRUE, label = "italic(n)== 540", size = 5) +
   geom_rect(aes(xmin = -7.3, xmax = -2.7, ymin = -13.9, ymax = -4.7), 
             fill = "white", alpha = 0, color = "black") +
   theme(axis.title = element_text(size = 15)) +
@@ -503,17 +531,16 @@ URW_rel_lmer_plot <- ggplot(bind_URW_rel, aes(interval_MY, vstep)) +
   geom_abline(intercept = URW_rel_tidy$estimate[1], slope = URW_rel_tidy$estimate[2], linewidth = 0.7) + 
   ggtitle(expression(bold("H"))) +
   ylab(expression(paste("Log ", italic(v)["step"]))) + xlab(expression("Log time")) +
-  annotate("text", x = -5, y = -5, parse = TRUE, label="italic(y)==-3.461-0.855~italic(x)", size = 5) +
+  annotate("text", x = -5, y = -5, parse = TRUE, label="italic(y)==-3.462-0.856~italic(x)", size = 5) +
   annotate("text", x = -5, y = -6.5, parse = TRUE, label="italic(SE)=='' %+-% '0.087'", size = 5) +
-  annotate("text", x = -5, y = -8, parse = TRUE, label = "italic(R)^2== 0.630", size = 5) +
-  annotate("text", x = -5, y = -9.7, parse = TRUE, label = "italic(n)== 165", size = 5) +
+  annotate("text", x = -5, y = -8, parse = TRUE, label = "italic(R)^2== 0.631", size = 5) +
+  annotate("text", x = -5, y = -9.7, parse = TRUE, label = "italic(n)== 164", size = 5) +
   geom_rect(aes(xmin = -7.3, xmax = -2.7, ymin = -10.8, ymax = -3.7), 
             fill = "white", alpha = 0, color = "black") +
   theme(axis.title = element_text(size = 15)) +
   theme(title = element_text(size = 19))
 
 print(URW_rel_lmer_plot)
-
 
 # ----------------------------------------------------------------- #
 # Estimate vstep from the absolute fit dataset, with sampling error #
@@ -558,10 +585,10 @@ URW_abs_lmer_plot <- ggplot(bind_URW_abs, aes(interval_MY, vstep)) +
   geom_abline(intercept = URW_abs_tidy$estimate[1], slope = URW_abs_tidy$estimate[2], linewidth = 0.7) + 
   ggtitle(expression(bold("I"))) +
   ylab(expression(paste("Log ", italic(v)["step"]))) + xlab(expression("Log time")) +
-  annotate("text", x = -5, y = -5, parse = TRUE, label="italic(y)==-3.514-0.855~italic(x)", size = 5) +
-  annotate("text", x = -5, y = -6.5, parse = TRUE, label="italic(SE)=='' %+-% '0.091'", size = 5) +
-  annotate("text", x = -5, y = -8.2, parse = TRUE, label = "italic(R)^2== 0.621", size = 5) +
-  annotate("text", x = -5, y = -10, parse = TRUE, label = "italic(n)== 147", size = 5) +
+  annotate("text", x = -5, y = -5, parse = TRUE, label="italic(y)==-3.505-0.851~italic(x)", size = 5) +
+  annotate("text", x = -5, y = -6.5, parse = TRUE, label="italic(SE)=='' %+-% '0.093'", size = 5) +
+  annotate("text", x = -5, y = -8.2, parse = TRUE, label = "italic(R)^2== 0.618", size = 5) +
+  annotate("text", x = -5, y = -10, parse = TRUE, label = "italic(n)== 145", size = 5) +
   geom_rect(aes(xmin = -7.4, xmax = -2.7, ymin = -11.5, ymax = -3.7), 
             fill = "white", alpha = 0, color = "black") +
   theme(axis.title = element_text(size = 15)) +
@@ -580,5 +607,3 @@ grid.arrange(darwins_compl_lmer_plot, darwins_rel_lmer_plot, darwins_abs_lmer_pl
              URW_compl_no_error_lmer_plot, URW_rel_no_error_lmer_plot, URW_abs_no_error_lmer_plot,
              URW_compl_lmer_plot, URW_rel_lmer_plot, URW_abs_lmer_plot, nrow = 3)
 dev.off()
-
-

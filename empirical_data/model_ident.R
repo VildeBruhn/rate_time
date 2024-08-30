@@ -3,8 +3,8 @@
 # --------------------- #
 
 
-#install.packages("evoTS")        version 0.1.2
-#install.packages("paleoTS")      version 0.5.3
+#install.packages("evoTS")        version 0.1.3
+#install.packages("paleoTS")      version 0.6.1
 #install.packages("adePEM")
 #install.packages("tidyverse")
 #install.packages("Matrix")
@@ -26,9 +26,10 @@ library(wesanderson)
 ## REMEMBER TO CHANGE PATH TO FILES ## 
 ######################################
 
+PATH = "./GitHub/rate_time/empirical_data/"
 
 # import functions
-source("[PATH_TO_SCRIPT]/model_ident_functions.R")
+source(paste0(PATH, "/model_ident_functions.R"))
 
 
 # --------------- #
@@ -38,14 +39,14 @@ source("[PATH_TO_SCRIPT]/model_ident_functions.R")
 ## The data is processed in the script empirical.R
 
 # import complete, relative fit and absolute fit datasets
-load("[PATH_TO_DATA]/complete.Rdata")
-load("[PATH_TO_DATA]/relative.Rdata")
-load("[PATH_TO_DATA]/absolute.Rdata")
+load(paste0(PATH, "complete.Rdata"))
+load(paste0(PATH, "relative.Rdata"))
+load(paste0(PATH, "absolute.Rdata"))
 
 # import dataframes with estimated vstep and some metadata
-load("[PATH_TO_DATA]/bind_URW_compl.Rdata")
-load("[PATH_TO_DATA]/bind_URW_rel.Rdata")
-load("[PATH_TO_DATA]/bind_URW_abs.Rdata")
+load(paste0(PATH, "bind_URW_compl.Rdata"))
+load(paste0(PATH, "bind_URW_rel.Rdata"))
+load(paste0(PATH, "bind_URW_abs.Rdata"))
 
 
 # ----------------------- #
@@ -58,9 +59,9 @@ load("[PATH_TO_DATA]/bind_URW_abs.Rdata")
 
 # examples of how to explore likelihood space and find lower and upper vsteps
 # (function from model_ident_functions.R)
-explore_compl <- search_likelihood(bind_URW_compl, complete, bind_URW_compl, save_plot = "[PATH_TO_FOLDER]")
-explore_rel <- search_likelihood(bind_URW_rel, relative, bind_URW_rel, save_plot = "[PATH_TO_FOLDER]")
-explore_abs <- search_likelihood(bind_URW_abs, absolute, bind_URW_abs, save_plot = "[PATH_TO_FOLDER]")
+explore_compl <- search_likelihood(bind_URW_compl, complete, bind_URW_compl, save_plot = "./GitHub/rate_time/empirical_data/test1")
+explore_rel <- search_likelihood(bind_URW_rel, relative, bind_URW_rel, save_plot = "./GitHub/rate_time/empirical_data/test2")
+explore_abs <- search_likelihood(bind_URW_abs, absolute, bind_URW_abs, save_plot = "./GitHub/rate_time/empirical_data/test3")
 
 # load data with lower and upper vsteps from article
 load("[PATH_TO_DATA]/l_u_compl.Rdata")
