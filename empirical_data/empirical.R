@@ -121,6 +121,7 @@ relative_paleo <- lapply(relative, function(x) {
 # (the warnings are ok)
 # The output of the test can vary with ca. +/- one time series (i.e., you will
 # not always get the exact same number of time series that pass the adequacy test)
+# set.seed to get the same output every time
 set.seed(1)
 adequacy <- lapply(relative_paleo, fit3adequacy.RW, plot = FALSE)
 
@@ -458,7 +459,7 @@ URW_compl = URW_compl[-which(sapply(URW_compl_fit, is.null))]
 bind_URW_compl <- bind(data = URW_compl, variance_term = "vstep",
                        variables = c("popID","vstep", "interval_MY", "nn"))
 
-# remove time series with wrongly estimated rate (vstep) in paleoTS v0.6.1
+# remove time series with estimated rates very close to 0
 bind_URW_compl <- bind_URW_compl[!bind_URW_compl$vstep <= 1.000000e-06, ]
 
 # put tt and vstep on log scale
