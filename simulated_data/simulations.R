@@ -4,8 +4,8 @@
 # ----------------- #
 
 # packages needed
-#install.packages("evoTS")        # version 1.0.2
-#install.packages("paleoTS")      # version 0.5.3
+#install.packages("evoTS")        # version 1.0.3
+#install.packages("paleoTS")      # version 1.0.6
 #install.packages("wesanderson")  # colors for figures
 #install.packages("tidyverse")
 #install.packages("ggpmisc")
@@ -25,7 +25,7 @@ library(gridExtra)
 ## REMEMBER TO CHANGE PATH TO FILES ## 
 ######################################
 
-PATH = "./GitHub/rate_time/simulated_data/"
+PATH = "[PATH_TO_DATA_FOLDER]"
 
 # import functions
 source(paste0(PATH, "simulations_functions.R"))
@@ -159,7 +159,6 @@ darwins_cut <- lapply(darwins_cut, function(x) {
   return(x)
 })
 
-
 # copy cut and incomplete data set
 darwins_incompl <- incompl_data
 
@@ -225,7 +224,7 @@ biased_data_paleo <- lapply(biased_data, function(x) {
 })
 
 # fit unbiased random walk (best to do on HPC with high number of simulations)
-URW_cut <- mclapply(cut_data_paleo, opt.joint.URW) 
+URW_cut <- lapply(cut_data_paleo, opt.joint.URW) 
 URW_incompl <- lapply(incompl_data_paleo, opt.joint.URW)
 URW_biased <- lapply(biase_data_paleo, opt.joint.URW)
 
@@ -282,6 +281,9 @@ URW_incompl_bind$vstep <- log(URW_incompl_bind$vstep)
 URW_biased_bind$tt <- log(URW_biased_bind$tt)
 URW_biased_bind$vstep <- log(URW_biased_bind$vstep)
 
+# remove time series that didn't work with paleoTS v0.6.1
+URW_incompl_bind <- na.omit(URW_incompl_bind)
+
 # linerar regressions (manually written in to plots below)
 summary(lm(vstep ~ tt, URW_cut_bind))
 summary(lm(vstep ~ tt, URW_incompl_bind))
@@ -291,16 +293,16 @@ summary(lm(darwins ~ interval_MY, darwins_incompl_bind))
 summary(lm(darwins ~ interval_MY, darwins_biased_bind))
 
 # plot and write to pdf 
-plot_URW_cut <- ggplot(URW_cut_bind, aes(tt, vstep)) + ylim(c(-1.4,1)) + xlim(c(1.1,7)) +
+plot_URW_cut <- ggplot(URW_cut_bind, aes(tt, vstep)) + ylim(c(-4.7,1)) + xlim(c(1.1,7)) +
   geom_point(color = c(wes_palette("Rushmore1")[3])) + theme_classic() + theme(legend.position="none") +
   geom_abline(intercept = -0.010, slope = -0.004, linewidth = 0.7) + 
   ggtitle(expression(bold("Cut time series"))) +
   ylab(expression(paste("Log ", italic(v)["step"]))) + xlab(expression("Log time")) +
-  annotate("text", x = 2.5, y = -0.6, parse = TRUE, label="italic(y)==-0.010-0.002~italic(x)", size = 5) +
-  annotate("text", x = 2.5, y = -0.8, parse = TRUE, label="italic(SE)=='' %+-% '0.003'", size = 5) +
-  annotate("text", x = 2.5, y = -1, parse = TRUE, label = "italic(R)^2== 0.000", size = 5) +
-  annotate("text", x = 2.5, y = -1.2, parse = TRUE, label = "italic(n)== 2000", size = 5) +
-  geom_rect(aes(xmin = 1.1, xmax = 3.88, ymin = -1.4, ymax = -0.4), 
+  annotate("text", x = 2.5, y = -1.9, parse = TRUE, label="italic(y)==-0.031+0.005~italic(x)", size = 5) +
+  annotate("text", x = 2.5, y = -2.6, parse = TRUE, label="italic(SE)=='' %+-% '0.002'", size = 5) +
+  annotate("text", x = 2.5, y = -3.3, parse = TRUE, label = "italic(R)^2== 0.002", size = 5) +
+  annotate("text", x = 2.5, y = -4.05, parse = TRUE, label = "italic(n)== 2000", size = 5) +
+  geom_rect(aes(xmin = 1.1, xmax = 3.88, ymin = -1.2, ymax = -4.7), 
             fill = "white", alpha = 0, color = "black") +
   theme(axis.title = element_text(size = 15)) +
   theme(title = element_text(size = 15))
@@ -309,16 +311,16 @@ print(plot_URW_cut)
 
 
 
-plot_URW_incompl <- ggplot(URW_incompl_bind, aes(tt, vstep)) + ylim(c(-3.4,1.7)) + xlim(c(0.2,7.3)) +
+plot_URW_incompl <- ggplot(URW_incompl_bind, aes(tt, vstep)) + ylim(c(-6.7,1.7)) + xlim(c(0.2,7.3)) +
   geom_point(color = c(wes_palette("Rushmore1")[3])) + theme_classic() + theme(legend.position="none") +
   geom_abline(intercept = -0.052, slope = 0.006, linewidth = 0.7) + 
   ggtitle(expression(bold("Incomplete time series"))) +
   ylab(expression(paste("Log ", italic(v)["step"]))) + xlab(expression("Log time")) +
-  annotate("text", x = 2, y = -1.5, parse = TRUE, label="italic(y)==-0.052+0.006~italic(x)", size = 5) +
-  annotate("text", x = 2, y = -2, parse = TRUE, label="italic(SE)=='' %+-% '0.005'", size = 5) +
-  annotate("text", x = 2, y = -2.5, parse = TRUE, label = "italic(R)^2== 0.000", size = 5) +
-  annotate("text", x = 2, y = -3, parse = TRUE, label = "italic(n)== 2000", size = 5) +
-  geom_rect(aes(xmin = 0.2, xmax = 3.81, ymin = -1.05, ymax = -3.4), 
+  annotate("text", x = 2, y = -3.9, parse = TRUE, label="italic(y)==-0.146+0.023~italic(x)", size = 5) +
+  annotate("text", x = 2, y = -4.6, parse = TRUE, label="italic(SE)=='' %+-% '0.004'", size = 5) +
+  annotate("text", x = 2, y = -5.3, parse = TRUE, label = "italic(R)^2== 0.013", size = 5) +
+  annotate("text", x = 2, y = -6.05, parse = TRUE, label = "italic(n)== 1997", size = 5) +
+  geom_rect(aes(xmin = 0.2, xmax = 3.81, ymin = -3.2, ymax = -6.7), 
             fill = "white", alpha = 0, color = "black") +
   theme(axis.title = element_text(size = 15)) +
   theme(title = element_text(size = 15))
@@ -332,7 +334,7 @@ plot_URW_biased <- ggplot(URW_biased_bind, aes(tt, vstep)) + ylim(c(-6.5,1.7)) +
   geom_abline(intercept = -0.185, slope = 0.028, linewidth = 0.7) + 
   ggtitle(expression(bold("Biased time series"))) +
   ylab(expression(paste("Log ", italic(v)["step"]))) + xlab(expression("Log time")) +
-  annotate("text", x = 2.55, y = -3.7, parse = TRUE, label="italic(y)==-0.185+0.028~italic(x)", size = 5) +
+  annotate("text", x = 2.55, y = -3.7, parse = TRUE, label="italic(y)==-0.186+0.028~italic(x)", size = 5) +
   annotate("text", x = 2.55, y = -4.4, parse = TRUE, label="italic(SE)=='' %+-% '0.005'", size = 5) +
   annotate("text", x = 2.55, y = -5.1, parse = TRUE, label = "italic(R)^2== 0.013", size = 5) +
   annotate("text", x = 2.55, y = -5.85, parse = TRUE, label = "italic(n)== 1984", size = 5) +

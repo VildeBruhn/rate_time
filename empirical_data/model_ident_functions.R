@@ -40,12 +40,12 @@ like_surf_URW <- function (y, vstep.vec, header_plot, save_plot, pool = TRUE)
   colnames(out) <- c("lower", "upper")
   rownames(out) <- "vstep"
   #print(out)
-  #pdf(file = save_plot)
+  pdf(file = save_plot)
   like_surf_plot <- plot(loglik ~ vstep.vec, type = "l", col = "black", lwd = 3, 
        xlab = "vstep", ylab = "log-likelihood", cex.lab = 1.2,
        main = paste("tsID = ", header_plot))
   like_surf_plot
-  #dev.off()
+  dev.off()
   like_surf_plot
   return(out)
 }
