@@ -27,9 +27,10 @@ library(wesanderson)
 ######################################
 
 PATH = "[PATH_TO_DATA_FOLDER]"
+PATH = "./GitHub/rate_time/empirical_data/"
 
 # import functions
-source(paste0(PATH, "/model_ident_functions.R"))
+source(paste0(PATH, "model_ident_functions.R"))
 
 
 # --------------- #
@@ -64,9 +65,9 @@ explore_rel <- search_likelihood(bind_URW_rel, relative, bind_URW_rel, save_plot
 explore_abs <- search_likelihood(bind_URW_abs, absolute, bind_URW_abs, save_plot = "./GitHub/rate_time/empirical_data/test3")
 
 # load data with lower and upper vsteps from article
-load("[PATH_TO_DATA]/l_u_compl.Rdata")
-load("[PATH_TO_DATA]/l_u_rel.Rdata")
-load("[PATH_TO_DATA]/l_u_abs.Rdata")
+load(paste0(PATH, "l_u_compl.Rdata"))
+load(paste0(PATH, "l_u_rel.Rdata"))
+load(paste0(PATH, "l_u_abs.Rdata"))
 
 
 # ----------------------------------------------------------- #
@@ -108,11 +109,11 @@ pdf(file = "[PATH_TO_RESULTS]/compl_ident.pdf")
 compl_plot <- ggplot(bind_URW_compl_log, aes(interval_MY, vstep)) +
   geom_point(color = "white")  + theme_classic() + theme(legend.position="none") +
   geom_abline(intercept = compl$estimate_1, slope = compl$estimate_2, linewidth = 0.1, color = c(wes_palette("Rushmore1")[3]), alpha = 0.1) +
-  geom_abline(intercept = -3.481, slope = -0.780, linewidth = 0.9, color = c(wes_palette("IsleofDogs1")[4])) +
+  geom_abline(intercept = -3.467, slope = -0.809, linewidth = 0.9, color = c(wes_palette("IsleofDogs1")[4])) +
   ylab(expression(paste("Log ", italic(v)["step"]))) + xlab(expression("Log time")) +
   ggtitle(expression(bold("Complete"))) +
-  annotate("text", x = -4, y = -8, parse = TRUE, label="italic(y)[orig]==-3.481-0.780~italic(x)", size = 5) +
-  annotate("text", x = -4, y = -9.5, parse = TRUE, label="italic(SE)[orig]=='' %+-% '0.065'", size = 5) +
+  annotate("text", x = -4, y = -8, parse = TRUE, label="italic(y)[orig]==-3.467-0.809~italic(x)", size = 5) +
+  annotate("text", x = -4, y = -9.5, parse = TRUE, label="italic(SE)[orig]=='' %+-% '0.066'", size = 5) +
   annotate("text", x = -4, y = -11, parse = TRUE, label= paste0("mean~italic(y)[new]==", round(mean(compl$estimate_1),3), 
                                                                 round(mean(compl$estimate_2), 3), "~italic(x)"), size = 5) +
   annotate("text", x = -4, y = -12.61, parse = TRUE, label= paste0("mean~italic(SE)[new]=='' %+-%", round(mean(compl$SE), 3)), size = 5) +
@@ -164,11 +165,11 @@ pdf(file = "[PATH_TO_RESULTS]/rel_ident.pdf")
 rel_plot <- ggplot(bind_URW_rel_log, aes(interval_MY, vstep)) +
   geom_point(color = "white")  + theme_classic() + theme(legend.position="none") +
   geom_abline(intercept = rel$estimate_1, slope = rel$estimate_2, linewidth = 0.1, color = c(wes_palette("Rushmore1")[3]), alpha = 0.1) +
-  geom_abline(intercept = -3.481, slope = -0.780, linewidth = 0.9, color = c(wes_palette("IsleofDogs1")[4])) +
+  geom_abline(intercept = -3.462, slope = -0.856, linewidth = 0.9, color = c(wes_palette("IsleofDogs1")[4])) +
   ylab(expression(paste("Log ", italic(v)["step"]))) + xlab(expression("Log time")) +
   ggtitle(expression(bold("Relative fit"))) +
-  annotate("text", x = -4, y = -8, parse = TRUE, label="italic(y)[orig]==-3.481-0.780~italic(x)", size = 5) +
-  annotate("text", x = -4, y = -9.5, parse = TRUE, label="italic(SE)[orig]=='' %+-% '0.065'", size = 5) +
+  annotate("text", x = -4, y = -8, parse = TRUE, label="italic(y)[orig]==-3.462-0.856~italic(x)", size = 5) +
+  annotate("text", x = -4, y = -9.5, parse = TRUE, label="italic(SE)[orig]=='' %+-% '0.087'", size = 5) +
   annotate("text", x = -4, y = -11, parse = TRUE, label= paste0("mean~italic(y)[new]==", round(mean(rel$estimate_1),3), 
                                                                 round(mean(rel$estimate_2), 3), "~italic(x)"), size = 5) +
   annotate("text", x = -4, y = -12.61, parse = TRUE, label= paste0("mean~italic(SE)[new]=='' %+-%", round(mean(rel$SE), 3)), size = 5) +
@@ -221,11 +222,11 @@ pdf(file = "[PATH_TO_RESULTS]/abs_ident.pdf")
 abs_plot <- ggplot(bind_URW_abs_log, aes(interval_MY, vstep)) +
   geom_point(color = "white")  + theme_classic() + theme(legend.position="none") +
   geom_abline(intercept = abs$estimate_1, slope = abs$estimate_2, linewidth = 0.1, color = c(wes_palette("Rushmore1")[3]), alpha = 0.1) +
-  geom_abline(intercept = -3.481, slope = -0.780, linewidth = 0.9, color = c(wes_palette("IsleofDogs1")[4])) +
+  geom_abline(intercept = -3.495, slope = -0.847, linewidth = 0.9, color = c(wes_palette("IsleofDogs1")[4])) +
   ylab(expression(paste("Log ", italic(v)["step"]))) + xlab(expression("Log time")) +
   ggtitle(expression(bold("Absolute fit"))) +
-  annotate("text", x = -4, y = -8, parse = TRUE, label="italic(y)[orig]==-3.481-0.780~italic(x)", size = 5) +
-  annotate("text", x = -4, y = -9.5, parse = TRUE, label="italic(SE)[orig]=='' %+-% '0.065'", size = 5) +
+  annotate("text", x = -4, y = -8, parse = TRUE, label="italic(y)[orig]==-3.495-0.847~italic(x)", size = 5) +
+  annotate("text", x = -4, y = -9.5, parse = TRUE, label="italic(SE)[orig]=='' %+-% '0.092'", size = 5) +
   annotate("text", x = -4, y = -11, parse = TRUE, label= paste0("mean~italic(y)[new]==", round(mean(abs$estimate_1),3), 
                                                                 round(mean(abs$estimate_2), 3), "~italic(x)"), size = 5) +
   annotate("text", x = -4, y = -12.61, parse = TRUE, label= paste0("mean~italic(SE)[new]=='' %+-%", round(mean(abs$SE), 3)), size = 5) +
