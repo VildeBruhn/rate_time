@@ -281,7 +281,7 @@ URW_incompl_bind$vstep <- log(URW_incompl_bind$vstep)
 URW_biased_bind$tt <- log(URW_biased_bind$tt)
 URW_biased_bind$vstep <- log(URW_biased_bind$vstep)
 
-# remove time series that didn't work with paleoTS v0.6.1
+# remove time series that cannot be processed by the loglikelihood function
 URW_incompl_bind <- na.omit(URW_incompl_bind)
 
 # linerar regressions (manually written in to plots below)

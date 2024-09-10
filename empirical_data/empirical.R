@@ -452,7 +452,7 @@ for(i in 1:length(complete)){
 # append metadata
 URW_compl <- mapply(c, complete_meta, URW_compl_fit, SIMPLIFY = FALSE)
 
-# remove time series that didn't work with paleoTS v0.6.1
+# remove time series that cannot be processed by the loglikelihood function
 URW_compl = URW_compl[-which(sapply(URW_compl_fit, is.null))]
 
 # bind data and choose variables
