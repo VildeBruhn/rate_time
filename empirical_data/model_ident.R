@@ -27,7 +27,6 @@ library(wesanderson)
 ######################################
 
 PATH = "[PATH_TO_DATA_FOLDER]"
-PATH = "./GitHub/rate_time/empirical_data/"
 
 # import functions
 source(paste0(PATH, "model_ident_functions.R"))
