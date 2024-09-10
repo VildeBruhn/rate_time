@@ -29,7 +29,7 @@ library(broom.mixed)
 ## REMEMBER TO CHANGE PATH TO FILES ## 
 ######################################
 
-PATH = "../../../../GitHub/rate_time/empirical_data/"
+PATH = "PATH_TO_DATA_FOLDER"
 
 # import functions
 source(paste0(PATH, "empirical_functions.R"))
