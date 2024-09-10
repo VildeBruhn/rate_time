@@ -59,9 +59,9 @@ load(paste0(PATH, "bind_URW_abs.Rdata"))
 
 # examples of how to explore likelihood space and find lower and upper vsteps
 # (function from model_ident_functions.R)
-explore_compl <- search_likelihood(bind_URW_compl, complete, bind_URW_compl, save_plot = "./GitHub/rate_time/empirical_data/test1")
-explore_rel <- search_likelihood(bind_URW_rel, relative, bind_URW_rel, save_plot = "./GitHub/rate_time/empirical_data/test2")
-explore_abs <- search_likelihood(bind_URW_abs, absolute, bind_URW_abs, save_plot = "./GitHub/rate_time/empirical_data/test3")
+explore_compl <- search_likelihood(bind_URW_compl, complete, bind_URW_compl, save_plot = "[PATH_TO_RESULTS_FOLDER]/[NAME_COMPL_FOLDER]")
+explore_rel <- search_likelihood(bind_URW_rel, relative, bind_URW_rel, save_plot = "[PATH_TO_RESULTS_FOLDER]/[NAME_REL_FOLDER]")
+explore_abs <- search_likelihood(bind_URW_abs, absolute, bind_URW_abs, save_plot = "[PATH_TO_RESULTS_FOLDER]/[NAME_ABS_FOLDER]")
 
 # load data with lower and upper vsteps from article
 load(paste0(PATH, "l_u_compl.Rdata"))
@@ -104,7 +104,7 @@ bind_URW_compl_log$interval_MY <- log(bind_URW_compl_log$interval_MY)
 ## The estimates will differ slightly from the article because vstep is chosen 
 ## randomly between the lower and upper value.
 
-pdf(file = "[PATH_TO_RESULTS]/compl_ident.pdf")
+pdf(file = "[PATH_TO_RESULTS_FOLDER]/compl_ident.pdf")
 compl_plot <- ggplot(bind_URW_compl_log, aes(interval_MY, vstep)) +
   geom_point(color = "white")  + theme_classic() + theme(legend.position="none") +
   geom_abline(intercept = compl$estimate_1, slope = compl$estimate_2, linewidth = 0.1, color = c(wes_palette("Rushmore1")[3]), alpha = 0.1) +
@@ -160,7 +160,7 @@ bind_URW_rel_log$interval_MY <- log(bind_URW_rel_log$interval_MY)
 ## The estimates will differ slightly from the article because vstep is chosen 
 ## randomly between the lower and upper value.
 
-pdf(file = "[PATH_TO_RESULTS]/rel_ident.pdf")
+pdf(file = "[PATH_TO_RESULTS_FOLDER]/rel_ident.pdf")
 rel_plot <- ggplot(bind_URW_rel_log, aes(interval_MY, vstep)) +
   geom_point(color = "white")  + theme_classic() + theme(legend.position="none") +
   geom_abline(intercept = rel$estimate_1, slope = rel$estimate_2, linewidth = 0.1, color = c(wes_palette("Rushmore1")[3]), alpha = 0.1) +
@@ -217,7 +217,7 @@ bind_URW_abs_log$interval_MY <- log(bind_URW_abs_log$interval_MY)
 ## The estimates will differ slightly from the article because vstep is chosen 
 ## randomly between the lower and upper value.
 
-pdf(file = "[PATH_TO_RESULTS]/abs_ident.pdf")
+pdf(file = "[PATH_TO_RESULTS_FOLDER]/abs_ident.pdf")
 abs_plot <- ggplot(bind_URW_abs_log, aes(interval_MY, vstep)) +
   geom_point(color = "white")  + theme_classic() + theme(legend.position="none") +
   geom_abline(intercept = abs$estimate_1, slope = abs$estimate_2, linewidth = 0.1, color = c(wes_palette("Rushmore1")[3]), alpha = 0.1) +
