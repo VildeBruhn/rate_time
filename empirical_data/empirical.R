@@ -604,7 +604,7 @@ print(URW_abs_lmer_plot)
 # ------------------------- #
 
 # plot and write to file
-pdf(width = 20.5, height = 11.5, file = "[PATH_TO_RESULTS]/empirical.pdf")
+pdf(width = 20.5, height = 11.5, file = "[PATH_TO_RESULTS_FOLDER]/empirical.pdf")
 grid.arrange(darwins_compl_lmer_plot, darwins_rel_lmer_plot, darwins_abs_lmer_plot,
              URW_compl_no_error_lmer_plot, URW_rel_no_error_lmer_plot, URW_abs_no_error_lmer_plot,
              URW_compl_lmer_plot, URW_rel_lmer_plot, URW_abs_lmer_plot, nrow = 3)
