@@ -96,7 +96,7 @@ names_list <- names(complete)
 names(model_test) <- names_list
 names(model_test_meta) <- names_list
 
-# remove time series that didn't work with paleoTS v0.6.1
+# remove time series that cannot be processed by the loglikelihood function
 model_test_meta = model_test_meta[-which(sapply(model_test, is.null))]
 model_test = model_test[-which(sapply(model_test, is.null))]
 
