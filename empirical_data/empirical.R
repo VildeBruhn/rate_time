@@ -95,7 +95,7 @@ names_list <- names(complete)
 names(model_test) <- names_list
 names(model_test_meta) <- names_list
 
-# remove time series that didn't work with paleoTS v0.6.1
+# remove time series that cannot be processed by the loglikelihood function
 model_test_meta = model_test_meta[-which(sapply(model_test, is.null))]
 model_test = model_test[-which(sapply(model_test, is.null))]
 
@@ -277,10 +277,6 @@ bind_URW_compl_no_error <- bind(data = URW_compl_no_error, variance_term = "vste
 bind_URW_compl_no_error$interval_MY <- log(bind_URW_compl_no_error$interval_MY)
 bind_URW_compl_no_error$vstep <- log(bind_URW_compl_no_error$vstep)
 
-# remove infinite values
-bind_URW_compl_no_error <- bind_URW_compl_no_error %>% filter_all(all_vars(!is.infinite(.)))
-bind_URW_compl_no_error <- bind_URW_compl_no_error %>% filter_all(all_vars(!is.na(vstep)))
-
 # mixed effect linear regression
 URW_compl_no_error_lmer <- lmer(vstep ~ interval_MY + (1|popID),
                                 bind_URW_compl_no_error, weights = 1/nn)
@@ -340,9 +336,6 @@ bind_URW_rel_no_error <- bind(URW_rel_no_error, "vstep",
 bind_URW_rel_no_error$interval_MY <- log(bind_URW_rel_no_error$interval_MY)
 bind_URW_rel_no_error$vstep <- log(bind_URW_rel_no_error$vstep)
 
-# remove infinite values
-bind_URW_rel_no_error <- bind_URW_rel_no_error %>% filter_all(all_vars(!is.infinite(.)))
-
 # mixed effect linear regression
 URW_rel_no_error_lmer <- lmer(vstep ~ interval_MY + (1|popID), bind_URW_rel_no_error, weights = 1/nn)
 
@@ -401,9 +394,6 @@ bind_URW_abs_no_error <- bind(URW_abs_no_error, variance_term = "vstep",
 # log transform tt and vstep
 bind_URW_abs_no_error$interval_MY <- log(bind_URW_abs_no_error$interval_MY)
 bind_URW_abs_no_error$vstep <- log(bind_URW_abs_no_error$vstep)
-
-# remove infinite values
-bind_URW_abs_no_error <- bind_URW_abs_no_error %>% filter_all(all_vars(!is.infinite(.)))
 
 # mixed effect linear regression
 URW_abs_no_error_lmer <- lmer(vstep ~ interval_MY + (1|popID), bind_URW_abs_no_error, weights = 1/nn)
@@ -513,9 +503,6 @@ bind_URW_rel <- bind(URW_rel, "vstep",
 bind_URW_rel$interval_MY <- log(bind_URW_rel$interval_MY)
 bind_URW_rel$vstep <- log(bind_URW_rel$vstep)
 
-# remove infinite values
-bind_URW_rel <- bind_URW_rel %>% filter_all(all_vars(!is.infinite(.)))
-
 # mixed effect linear regression
 URW_rel_lmer <- lmer(vstep ~ interval_MY + (1|popID), bind_URW_rel, weights = 1/nn)
 
@@ -566,9 +553,6 @@ bind_URW_abs <- bind(URW_abs, variance_term = "vstep",
 # log transform tt and vstep
 bind_URW_abs$interval_MY <- log(bind_URW_abs$interval_MY)
 bind_URW_abs$vstep <- log(bind_URW_abs$vstep)
-
-# remove infinite values
-bind_URW_abs <- bind_URW_abs %>% filter_all(all_vars(!is.infinite(.)))
 
 # mixed effect linear regression
 URW_abs_lmer <- lmer(vstep ~ interval_MY + (1|popID), bind_URW_abs, weights = 1/nn)
