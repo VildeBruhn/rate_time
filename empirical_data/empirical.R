@@ -435,7 +435,6 @@ URW_compl <- lapply(complete, opt.joint.URW, pool = TRUE)
 
 URW_compl_fit <- list()
 for(i in 1:length(complete)){
-  print(i)
   try(URW_compl_fit[[i]] <- opt.joint.URW(complete[[i]], pool = TRUE))
 }
 
