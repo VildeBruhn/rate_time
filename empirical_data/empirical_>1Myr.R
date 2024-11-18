@@ -29,7 +29,7 @@ library(broom.mixed)
 ## REMEMBER TO CHANGE PATH TO FILES ## 
 ######################################
 
-PATH = "[PATH_TO_DATA_FOLDER]"
+PATH = "[PATH_TO_DATA_FOLDER]/"
 
 # import functions
 source(paste0(PATH, "empirical_functions.R"))
