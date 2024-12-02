@@ -28,7 +28,7 @@ library(gridExtra)
 PATH = "[PATH_TO_DATA_FOLDER]"
 
 # import functions
-source(paste0(PATH, "simulations_functions.R"))
+source(paste0(PATH, "/simulations_functions.R"))
 
 # ------------- #
 # Simulated data #
@@ -39,7 +39,7 @@ source(paste0(PATH, "simulations_functions.R"))
 data_sim <- sim(i = 1:1000, ns = 1000, nn = rep(50,1000), vs = 1, vp = 0.1)
 
 ## load simulated data used in the article
-load(paste0(PATH, "data_sim.Rdata"))
+load(paste0(PATH, "/data_sim.Rdata"))
 
 # ------------------------------- #
 # Cut simulations randomly in two #
@@ -71,7 +71,7 @@ for (i in 1:length(new_data)){
 }
 
 ## load cut data used in the article
-load(paste0(PATH, "cut_data.Rdata"))
+load(paste0(PATH, "/cut_data.Rdata"))
 
 # ----------------------------------------------------- #
 # Make incomplete data by removing populations randomly #
@@ -91,7 +91,7 @@ for (i in 1:length(cut_data)){
 }
 
 ## load cut and incomplete data used in the article
-load(paste0(PATH, "incompl_data.Rdata"))
+load(paste0(PATH, "/incompl_data.Rdata"))
 
 
 # ---------------------------------------------------------------- # 
@@ -134,7 +134,7 @@ for (i in 1:length(incompl_data)){
 }
 
 ## load data used in the article
-load(paste0(PATH, "biased_data.Rdata"))
+load(paste0(PATH, "/biased_data.Rdata"))
 
 
 # ------------------------------------- #
@@ -230,9 +230,9 @@ URW_biased <- lapply(biase_data_paleo, opt.joint.URW)
 
 
 ## load data used in the article
-load(paste0(PATH, "URW_cut.Rdata"))
-load(paste0(PATH, "URW_incompl.Rdata"))
-load(paste0(PATH, "URW_biased.Rdata"))
+load(paste0(PATH, "/URW_cut.Rdata"))
+load(paste0(PATH, "/URW_incompl.Rdata"))
+load(paste0(PATH, "/URW_biased.Rdata"))
 
 
 # ------------------------- #
