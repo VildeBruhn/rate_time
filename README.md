@@ -8,7 +8,7 @@ __Affiliation:__ <sup>1</sup>Natural History Museum, University of Oslo
 
 __Contact:__ <sup>*</sup>v.b.kinneberg@nhm.uio.no
 
-__Journal:__ NA
+__Journal:__ Evolution
 
 __Year:__ 2025  
 
