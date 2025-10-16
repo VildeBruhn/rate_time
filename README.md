@@ -1,6 +1,6 @@
 # RATE-TIME SCALING IN PHENOTYPIC EVOLUTION: LIMITATIONS OF CURRENT MODELS IN CAPTURING TEMPORAL DYNAMICS
 
-__Article:__ (https://doi.org/10.1093/evolut/qpaf208)
+__Article:__ https://doi.org/10.1093/evolut/qpaf208
 
 __Authors:__ Vilde Bruhn Kinneberg<sup>1*</sup> and Kjetil Lysne Voje<sup>1</sup>
 
