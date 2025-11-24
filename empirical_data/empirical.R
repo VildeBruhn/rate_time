@@ -2,6 +2,7 @@
 # EMPIRICAL DATA #
 # -------------- #
 
+
 # packages needed
 #install.packages("evoTS")        # version 1.0.3
 #install.packages("paleoTS")      # version 0.6.1
@@ -25,7 +26,6 @@ library(MuMIn)
 library(gridExtra)
 library(broom.mixed)
 
-
 ######################################
 ## REMEMBER TO CHANGE PATH TO FILES ## 
 ######################################
@@ -40,6 +40,7 @@ source(paste0(PATH, "empirical_functions.R"))
 #--------------------------------------- #
 # Import and process files from database #  
 #--------------------------------------- #
+
 
 # import time series and metadata
 timeseries <- read_delim(paste0(PATH, "timeseries.txt"), col_names = TRUE, delim = "\t")
@@ -63,6 +64,7 @@ df <- lapply(split(df,df$tsID), function(x) as.list(x))
 # Make complete dataset #
 # --------------------- #
 
+
 # process data into right form (function dt from empirical_functions.R)
 # with metadata
 complete_meta <- dt(df, "tsID")
@@ -72,9 +74,11 @@ complete <- lapply(complete_meta, function(x) {
   as.paleoTS(mm = x$mm, vv = x$vv, nn = x$N, tt = x$tt, oldest = "first")
 })
 
+
 # ------------------------- #
 # Make relative fit dataset #
 # ------------------------- #
+
 
 # example of how to run model test (takes time, load model test used
 # in article below)
@@ -112,6 +116,7 @@ relative <- relative_fit(model_test_meta)
 # Make absolute fit dataset #
 # ------------------------- #
 
+
 # make paleoTS objects for the adequacy test
 relative_paleo <- lapply(relative, function(x) {
   as.paleoTS(mm = x$mm, vv = x$vv, nn = x$nn, tt = x$tt)
@@ -132,9 +137,11 @@ absolute <- mapply(c, relative, adequacy, SIMPLIFY = FALSE)
 # (adequate function from empirical_functions.R)
 absolute <- adequate(absolute)
 
+
 #--------------------------------------- #
 # Calculate darwins for complete dataset #
 #--------------------------------------- #
+
 
 darwins_compl <- complete_meta
 
@@ -178,6 +185,7 @@ print(darwins_compl_lmer_plot)
 # Calculate darwins for relative fit dataset #  
 #------------------------------------------- #
 
+
 # calculate darwins for relative fit
 darwins_rel <- darwins(relative)
 
@@ -217,6 +225,7 @@ print(darwins_rel_lmer_plot)
 # Calculate darwins for absolute fit dataset # 
 #------------------------------------------- #
 
+
 # calculate darwins
 darwins_abs <- darwins(absolute)
 
@@ -255,6 +264,7 @@ print(darwins_abs_lmer_plot)
 # ----------------------------------------------------------------------- #
 # Estimate vstep from complete dataset, not accounting for sampling error #
 # ----------------------------------------------------------------------- #
+
 
 # set variance in empirical data to near zero
 complete_no_vv <- lapply(complete, function(x){
@@ -309,6 +319,7 @@ print(URW_compl_no_error_lmer_plot)
 # --------------------------------------------------------------------------- #
 # Estimate vstep from relative fit dataset, not accounting for sampling error #
 # --------------------------------------------------------------------------- #
+
 
 # set variance to near zero in the relative fit dataset
 relative_no_vv <- lapply(relative, function(x){
@@ -369,6 +380,7 @@ print(URW_rel_no_error_lmer_plot)
 # Estimate vstep from absolute fit dataset, not accounting for sampling error #
 # --------------------------------------------------------------------------- #
 
+
 # set variance to near zero in the absolute fit dataset
 absolute_no_vv <- lapply(absolute, function(x){
   len <- length(x$vv)
@@ -427,6 +439,7 @@ print(URW_abs_no_error_lmer_plot)
 # ------------------------------------------------------------- #
 # Estimate vstep from the complete dataset, with sampling error #
 # ------------------------------------------------------------- #
+
 
 # example of how to fit an unbiased random walk
 URW_compl <- lapply(complete, opt.joint.URW, pool = TRUE)
@@ -488,6 +501,7 @@ print(URW_compl_lmer_plot)
 # Estimate vstep from the relative fit dataset, with sampling error #
 # ----------------------------------------------------------------- #
 
+
 # fit unbiased random walk 
 URW_rel <- lapply(relative_paleo, opt.joint.URW)
 
@@ -530,9 +544,11 @@ URW_rel_lmer_plot <- ggplot(bind_URW_rel, aes(interval_MY, vstep)) +
 
 print(URW_rel_lmer_plot)
 
+
 # ----------------------------------------------------------------- #
 # Estimate vstep from the absolute fit dataset, with sampling error #
 # ----------------------------------------------------------------- #
+
 
 # make paloTS objects for the model fit
 absolute_paleo <- lapply(absolute, function(x) {
@@ -585,6 +601,7 @@ print(URW_abs_lmer_plot)
 # ------------------------- #
 # Plot regressions together #
 # ------------------------- #
+
 
 # plot and write to file
 pdf(width = 20.5, height = 11.5, file = "[PATH_TO_RESULTS_FOLDER]/empirical.pdf")
